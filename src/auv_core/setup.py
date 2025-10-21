@@ -16,7 +16,6 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
-        # --- THIS LINE IS NOW CORRECTED ---
         (os.path.join('share', package_name, 'meshes'), glob('models/orca4_ign/meshes/*.*')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     ],

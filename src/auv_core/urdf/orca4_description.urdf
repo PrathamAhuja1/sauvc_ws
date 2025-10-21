@@ -15,7 +15,7 @@
 
       <visual name="base_link_visual">
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/bluerov2.dae" scale = "0.025 0.025 0.025"/>
+          <mesh filename="package://auv_core/meshes/bluerov2.dae" scale = "0.025 0.025 0.025"/>
         </geometry>
       </visual>
 
@@ -64,7 +64,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-cw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-cw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -78,7 +78,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-ccw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-ccw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -92,7 +92,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-ccw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-ccw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -106,7 +106,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-cw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-cw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -120,7 +120,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 1.5707963267948966"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-ccw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-ccw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -134,7 +134,7 @@
       <visual name="thruster_prop_visual">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 1.5707963267948966"/>
         <geometry>
-          <mesh filename="package://simulation/models/orca4_ign/meshes/t200-cw-prop.dae"/>
+          <mesh filename="package://auv_core/meshes/t200-cw-prop.dae"/>
         </geometry>
       </visual>
       <inertial>
@@ -575,32 +575,5 @@
       </imu>
     </sensor>
   </gazebo>
-
-  <!-- Downward/Forward Camera Links -->
-  <link name="downward_camera_link">
-    <inertial>
-      <mass value="0.001"/>
-      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
-    </inertial>
-  </link>
-
-  <joint name="downward_camera_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="downward_camera_link"/>
-    <origin xyz="0.15 0 -0.05" rpy="0 0.3 0"/>
-  </joint>
-
-  <link name="forward_camera_link">
-    <inertial>
-      <mass value="0.001"/>
-      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
-    </inertial>
-  </link>
-
-  <joint name="forward_camera_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="forward_camera_link"/>
-    <origin xyz="0.15 0 0" rpy="0 0 0"/>
-  </joint>
 
 </robot>
