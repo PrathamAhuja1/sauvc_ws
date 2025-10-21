@@ -1,0 +1,53 @@
+[0.336s] Invoking command in '/home/pratham/Documents/sauvc_ws/build/auv_core': PYTHONPATH=/home/pratham/Documents/sauvc_ws/build/auv_core/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/pratham/Documents/sauvc_ws/build/auv_core/build --no-deps symlink_data
+[0.483s] running develop
+[0.563s] running egg_info
+[0.564s] creating auv_core.egg-info
+[0.564s] writing auv_core.egg-info/PKG-INFO
+[0.564s] writing dependency_links to auv_core.egg-info/dependency_links.txt
+[0.564s] writing entry points to auv_core.egg-info/entry_points.txt
+[0.564s] writing requirements to auv_core.egg-info/requires.txt
+[0.564s] writing top-level names to auv_core.egg-info/top_level.txt
+[0.564s] writing manifest file 'auv_core.egg-info/SOURCES.txt'
+[0.565s] reading manifest file 'auv_core.egg-info/SOURCES.txt'
+[0.565s] writing manifest file 'auv_core.egg-info/SOURCES.txt'
+[0.566s] running build_ext
+[0.566s] Creating /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv-core.egg-link (link to .)
+[0.566s] Installing bluerov_teleop script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.566s] Installing control_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.566s] Installing depth_processor_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing gate_detector_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing gate_navigator_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing mission_planner_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing optical_flow_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing perception_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing serial_bridge_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing sim_thruster_mapper script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] Installing simple_thruster_mapper script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+[0.567s] 
+[0.567s] Installed /home/pratham/Documents/sauvc_ws/build/auv_core
+[0.567s] running symlink_data
+[0.567s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index
+[0.567s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index
+[0.567s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index/packages
+[0.567s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/resource/auv_core -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index/packages
+[0.567s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/package.xml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core
+[0.567s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+[0.567s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/launch/simulation_launch.py -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+[0.567s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/launch/auv_launch.py -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+[0.568s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/bridge_config.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/ekf.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/config_stereo.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/gz_bridge.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+[0.568s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/urdf
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/urdf/orca4_description.urdf -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/urdf
+[0.568s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/worlds
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/worlds/sauvc_pool.sdf -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/worlds
+[0.568s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/t200-ccw-prop.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/t200-cw-prop.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/bluerov2.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+[0.568s] creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/rviz/slam.rviz -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz
+[0.568s] symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/rviz/urdf_config.rviz -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz
+[0.586s] Invoked command in '/home/pratham/Documents/sauvc_ws/build/auv_core' returned '0': PYTHONPATH=/home/pratham/Documents/sauvc_ws/build/auv_core/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/pratham/Documents/sauvc_ws/build/auv_core/build --no-deps symlink_data

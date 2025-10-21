@@ -212,8 +212,7 @@ class GateNavigatorNode(Node):
         self.get_logger().info('STATE: AVOIDING FLARE')
 
         # If flare is lost OR timeout is reached, return to ALIGNING
-        if not self.flare_detected or \
-           (time.time() - self.flare_avoidance_timer > self.flare_avoidance_duration):
+        if not self.flare_detected or (time.time() - self.flare_avoidance_timer > self.flare_avoidance_duration):
             
             self.get_logger().info('STATE: AVOIDING_FLARE -> ALIGNING (Avoidance complete)')
             self.state = self.ALIGNING

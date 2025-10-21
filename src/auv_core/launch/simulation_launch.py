@@ -57,11 +57,7 @@ def generate_launch_description():
             'min_contour_area': 800,
             'aspect_ratio_threshold': 2.5,
             'gate_width_meters': 1.5
-        }],
-        remappings=[
-            ('/camera_forward/image_raw', '/camera_down/image_raw'),
-            ('/camera_forward/camera_info', '/camera_down/camera_info')
-        ]
+        }]
     )
 
     # Gate Navigator Node

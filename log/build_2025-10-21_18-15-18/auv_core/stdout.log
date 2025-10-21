@@ -1,0 +1,51 @@
+running develop
+running egg_info
+creating auv_core.egg-info
+writing auv_core.egg-info/PKG-INFO
+writing dependency_links to auv_core.egg-info/dependency_links.txt
+writing entry points to auv_core.egg-info/entry_points.txt
+writing requirements to auv_core.egg-info/requires.txt
+writing top-level names to auv_core.egg-info/top_level.txt
+writing manifest file 'auv_core.egg-info/SOURCES.txt'
+reading manifest file 'auv_core.egg-info/SOURCES.txt'
+writing manifest file 'auv_core.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv-core.egg-link (link to .)
+Installing bluerov_teleop script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing control_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing depth_processor_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing gate_detector_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing gate_navigator_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing mission_planner_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing optical_flow_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing perception_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing serial_bridge_node script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing sim_thruster_mapper script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+Installing simple_thruster_mapper script to /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core
+
+Installed /home/pratham/Documents/sauvc_ws/build/auv_core
+running symlink_data
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index/packages
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/resource/auv_core -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/ament_index/resource_index/packages
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/package.xml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/launch/simulation_launch.py -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/launch/auv_launch.py -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/launch
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/bridge_config.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/ekf.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/config_stereo.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/config/gz_bridge.yaml -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/config
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/urdf
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/urdf/orca4_description.urdf -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/urdf
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/worlds
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/worlds/sauvc_pool.sdf -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/worlds
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/t200-ccw-prop.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/t200-cw-prop.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/models/orca4_ign/meshes/bluerov2.dae -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/meshes
+creating /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/rviz/slam.rviz -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz
+symbolically linking /home/pratham/Documents/sauvc_ws/build/auv_core/rviz/urdf_config.rviz -> /home/pratham/Documents/sauvc_ws/install/auv_core/share/auv_core/rviz

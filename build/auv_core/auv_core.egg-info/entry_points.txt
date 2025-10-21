@@ -9,4 +9,5 @@ optical_flow_node = auv_core.optical_flow_node:main
 perception_node = auv_core.perception_node:main
 serial_bridge_node = auv_core.serial_bridge_node:main
 sim_thruster_mapper = auv_core.sim_thruster_mapper:main
+simple_thruster_mapper = auv_core.simple_thruster_mapper:main
 
