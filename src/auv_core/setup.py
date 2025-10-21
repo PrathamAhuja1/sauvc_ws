@@ -12,19 +12,18 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')), # Changed extension
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*.*')),
-        # Add rviz config if you create one
-        # (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Your Name',
     maintainer_email='your_email@example.com',
-    description='Core package for SAUVC AUV simulation',
+    description='Core package for SAUVC AUV with autonomous gate navigation',
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
@@ -34,8 +33,11 @@ setup(
             'perception_node = auv_core.perception_node:main',
             'mission_planner_node = auv_core.mission_planner_node:main',
             'control_node = auv_core.control_node:main',
+            'serial_bridge_node = auv_core.serial_bridge_node:main',
             'sim_thruster_mapper = auv_core.sim_thruster_mapper:main',
-            'bluerov_teleop = auv_core.bluerov_teleop_ign:main', # Add teleop script
+            'bluerov_teleop = auv_core.bluerov_teleop_ign:main',
+            'gate_detector_node = auv_core.gate_detector_node:main',
+            'gate_navigator_node = auv_core.gate_navigator_node:main',
         ],
     },
 )
