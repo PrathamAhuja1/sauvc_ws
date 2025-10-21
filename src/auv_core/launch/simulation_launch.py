@@ -94,6 +94,44 @@ def generate_launch_description():
             'flare_avoidance_duration': 3.0
         }]
     )
+    safety_monitor = Node(
+        package='auv_core',
+        executable='safety_monitor_node',
+        name='safety_monitor_node',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'max_depth': -3.5,
+            'min_depth': 0.2,
+            'max_tilt_angle': 0.785,
+            'watchdog_timeout': 5.0,
+            'max_mission_time': 900.0
+        }]
+    )
+    
+    # Mission State Manager
+    state_manager = Node(
+        package='auv_core',
+        executable='mission_state_manager',
+        name='mission_state_manager',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+    
+    # Flare Detector
+    flare_detector = Node(
+        package='auv_core',
+        executable='flare_detector_node',
+        name='flare_detector_node',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'min_contour_area': 300,
+            'min_aspect_ratio': 3.0,
+            'publish_debug': True
+        }]
+    )
+
 
     # Simple Thruster Mapper
     simple_thruster_mapper = Node(
@@ -121,10 +159,11 @@ def generate_launch_description():
         gazebo,
         TimerAction(period=3.0, actions=[bridge]),
         TimerAction(period=4.0, actions=[robot_state_publisher]),
-        TimerAction(period=5.0, actions=[odom_relay]),  # Add odometry relay
+        TimerAction(period=5.0, actions=[odom_relay]),
         TimerAction(period=6.0, actions=[gate_detector_node]),
         TimerAction(period=6.0, actions=[gate_navigator_node]),
         TimerAction(period=6.0, actions=[simple_thruster_mapper]),
-        # Uncomment to view debug images:
-        # TimerAction(period=8.0, actions=[debug_image_view]),
+        TimerAction(period=6.0, actions=[safety_monitor]),
+        TimerAction(period=6.0, actions=[state_manager]),
+        TimerAction(period=6.0, actions=[flare_detector]),
     ])

@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Main Behavior Tree for SAUVC Tasks 1 (Navigation) and 4 (Communication & Localization)
-Uses py_trees library for behavior tree implementation
-"""
 
 import rclpy
 from rclpy.node import Node

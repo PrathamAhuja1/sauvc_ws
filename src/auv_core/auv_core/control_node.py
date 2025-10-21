@@ -7,7 +7,7 @@ from geometry_msgs.msg import PoseStamped, Twist, Point, Quaternion
 import math
 import numpy as np
 import tf_transformations
-# from simple_pid import PID # Consider using a library
+# from simple_pid import PID
 
 class ControlNode(Node):
     def __init__(self):
@@ -29,12 +29,6 @@ class ControlNode(Node):
         self.yaw_p = self.get_parameter('yaw_p_gain').value
         self.depth_p = self.get_parameter('depth_p_gain').value
 
-        # --- TODO: Initialize PID controllers ---
-        # self.x_pid = PID(...)
-        # self.y_pid = PID(...)
-        # self.z_pid = PID(self.depth_p, 0.1, 0.05, setpoint=0) # Example gains
-        # self.yaw_pid = PID(self.yaw_p, 0.1, 0.05, setpoint=0, output_limits=(-self.max_ang_vel, self.max_ang_vel))
-        # self.yaw_pid.error_map = lambda error: (error + math.pi) % (2 * math.pi) - math.pi # Handle angle wrap
 
         # --- Subscriptions ---
         self.odom_sub = self.create_subscription(
@@ -98,20 +92,13 @@ class ControlNode(Node):
             cmd_vel.linear.z = error_z * self.depth_p # Simple Z control
             cmd_vel.angular.z = error_yaw * self.yaw_p # Simple Yaw control
 
-            # --- TODO: Replace with PID ---
-            # Update PIDs with errors and current values
-            # self.x_pid.setpoint = goal_pos.x ... etc.
-            # cmd_vx = self.x_pid(current_pos.x) ... etc.
-            # Transform resulting vx, vy to base_link frame if PIDs operate on world frame error
 
         elif self.target_velocity:
             # --- Pass through Velocity Command ---
             cmd_vel = self.target_velocity
 
         else:
-            # --- Default: Hold Position (command zero velocity) ---
-            # Could implement active station keeping here using PIDs with setpoint = current pose
-            pass # cmd_vel is already zero
+            pass
 
         # --- Apply Velocity Limits ---
         lin_vel_mag = math.sqrt(cmd_vel.linear.x**2 + cmd_vel.linear.y**2 + cmd_vel.linear.z**2)

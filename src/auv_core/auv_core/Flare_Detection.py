@@ -152,4 +152,78 @@ class FlareDetectorNode(Node):
         
         # Create mask
         mask1 = cv2.inRange(hsv_image, lower1, upper1)
-        if lower2 is not
+        if lower2 is not None and upper2 is not None:
+            mask2 = cv2.inRange(hsv_image, lower2, upper2)
+            mask = mask1 | mask2
+        else:
+            mask = mask1
+        
+        # Morphological operations
+        kernel = np.ones((5, 5), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        flare_info = None
+        max_area = 0
+        
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if area < self.min_area:
+                continue
+            
+            x, y, w, h = cv2.boundingRect(cnt)
+            aspect_ratio = float(h) / w if w > 0 else 0
+            
+            if aspect_ratio > self.min_aspect and area > max_area:
+                M = cv2.moments(cnt)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    
+                    max_area = area
+                    flare_info = {
+                        'center': (cx, cy),
+                        'bbox': (x, y, w, h),
+                        'area': area
+                    }
+                    
+                    if debug_img is not None:
+                        cv2.rectangle(debug_img, (x, y), (x + w, y + h), color, 2)
+                        cv2.circle(debug_img, (cx, cy), 5, color, -1)
+                        cv2.putText(debug_img, label, (x, y - 5),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        
+        return flare_info
+    
+    def publish_flare_detection(self, flare_info, color_name, bool_pub, pose_pub, header):
+        """Publish detection status and pose"""
+        detected = Bool()
+        detected.data = flare_info is not None
+        bool_pub.publish(detected)
+        
+        if flare_info:
+            pose_msg = PoseStamped()
+            pose_msg.header = header
+            pose_msg.header.frame_id = 'camera_forward'
+            pose_msg.pose.position.x = float(flare_info['center'][0])
+            pose_msg.pose.position.y = float(flare_info['center'][1])
+            pose_msg.pose.orientation.w = 1.0
+            pose_pub.publish(pose_msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = FlareDetectorNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

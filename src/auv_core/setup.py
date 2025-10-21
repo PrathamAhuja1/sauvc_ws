@@ -40,6 +40,9 @@ setup(
         'gate_detector_node = auv_core.gate_detector_node:main',
         'gate_navigator_node = auv_core.gate_navigator_node:main',
         'diagnostic_node = auv_core.diagnostic_node:main',
+        'safety_monitor_node = auv_core.safety_monitor_node:main',
+        'mission_state_manager = auv_core.mission_state_manager:main',
+        'flare_detector_node = auv_core.Flare_Detection:main',
     ],
 },
 )
