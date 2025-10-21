@@ -1038,8 +1038,6 @@
       </link>
     </model>
 
-    <!-- Include your AUV model -->
-    <!-- IMPORTANT: Replace 'username' with your actual username -->
     <include>
 	  <uri>model://simulation/models/orca4_ign</uri>
 	  <pose>-20 0 -0.5 0 0 0</pose>
