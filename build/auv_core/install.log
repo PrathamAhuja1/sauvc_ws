@@ -2,6 +2,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/gate_detector_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/depth_processor_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/control_node.py
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/diagnostic_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/gate_navigator_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/bluerov_teleop_ign.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/simple_thruster_mapper.py
@@ -10,6 +11,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/gate_detector_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/depth_processor_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/control_node.cpython-310.pyc
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/diagnostic_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/gate_navigator_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/bluerov_teleop_ign.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/simple_thruster_mapper.cpython-310.pyc
@@ -39,6 +41,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/bluerov_teleop
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/control_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/depth_processor_node
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/diagnostic_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/gate_detector_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/gate_navigator_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/mission_planner_node

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple Thruster Mapper Node
+Simple Thruster Mapper Node - FIXED VERSION
 Converts Twist commands (cmd_vel) to individual thruster commands for 6-thruster configuration
 """
 
@@ -17,7 +17,10 @@ class SimpleThrusterMapper(Node):
         
         # Parameters
         self.declare_parameter('max_thrust', 10.0)
+        self.declare_parameter('thrust_scale', 3.0)  # Scaling factor to increase thrust
+        
         self.max_thrust = self.get_parameter('max_thrust').value
+        self.thrust_scale = self.get_parameter('thrust_scale').value
         
         # Subscribe to cmd_vel
         self.cmd_vel_sub = self.create_subscription(
@@ -33,73 +36,81 @@ class SimpleThrusterMapper(Node):
             for i in range(1, 7)
         ]
         
-        # Thruster configuration for BlueROV2/Orca4
-        # Thrusters 1-4: Horizontal (vectored thrust)
-        # Thrusters 5-6: Vertical
+        # Stats
+        self.cmd_count = 0
+        self.timer = self.create_timer(5.0, self.print_stats)
         
         self.get_logger().info('Simple Thruster Mapper initialized')
+        self.get_logger().info(f'Max thrust: {self.max_thrust}, Scale: {self.thrust_scale}')
+    
+    def print_stats(self):
+        self.get_logger().info(f'Thruster Mapper: Processed {self.cmd_count} cmd_vel messages')
     
     def cmd_vel_callback(self, msg: Twist):
         """
         Map Twist to thruster commands
         Twist frame: X=forward, Y=left, Z=up, Yaw=rotation about Z
         """
+        self.cmd_count += 1
+        
         # Extract velocities
         vx = msg.linear.x   # Forward/backward
         vy = msg.linear.y   # Left/right (sway)
         vz = msg.linear.z   # Up/down
         yaw = msg.angular.z # Rotation
         
+        # Apply scaling
+        vx *= self.thrust_scale
+        vy *= self.thrust_scale
+        vz *= self.thrust_scale
+        yaw *= self.thrust_scale
+        
         # Thruster allocation matrix for BlueROV2/Orca4 configuration
         # Thrusters 1-4 are at 45-degree angles
-        # Simplified model:
-        
-        # Horizontal thrusters (1-4)
-        # Thruster 1: Front-left (135 deg)
-        # Thruster 2: Front-right (45 deg)
-        # Thruster 3: Back-left (-135 deg)
-        # Thruster 4: Back-right (-45 deg)
+        # Simplified model based on URDF configuration:
+        # Thruster 1: Front-left 
+        # Thruster 2: Front-right
+        # Thruster 3: Back-left 
+        # Thruster 4: Back-right
+        # Thrusters 5-6: Vertical
         
         thrust = np.zeros(6)
         
-        # Forward/Backward (surge)
-        thrust[0] += vx  # Thruster 1
-        thrust[1] += vx  # Thruster 2
-        thrust[2] -= vx  # Thruster 3 (reverse)
-        thrust[3] -= vx  # Thruster 4 (reverse)
+        # Horizontal thrusters (1-4) - Vectored configuration
+        # Each thruster contributes to surge, sway, and yaw
         
-        # Left/Right (sway)
-        thrust[0] += vy  # Thruster 1
-        thrust[1] -= vy  # Thruster 2
-        thrust[2] -= vy  # Thruster 3
-        thrust[3] += vy  # Thruster 4
+        # Thruster 1 (Front-Left, -45 deg)
+        thrust[0] = vx - vy + yaw
         
-        # Yaw (rotation)
-        thrust[0] += yaw  # Thruster 1
-        thrust[1] -= yaw  # Thruster 2
-        thrust[2] += yaw  # Thruster 3
-        thrust[3] -= yaw  # Thruster 4
+        # Thruster 2 (Front-Right, -135 deg) 
+        thrust[1] = vx + vy - yaw
+        
+        # Thruster 3 (Back-Left, 45 deg) - reversed in URDF
+        thrust[2] = -vx + vy + yaw
+        
+        # Thruster 4 (Back-Right, 135 deg) - reversed in URDF
+        thrust[3] = -vx - vy - yaw
         
         # Vertical thrusters (5-6)
-        thrust[4] = vz  # Thruster 5
-        thrust[5] = vz  # Thruster 6
+        thrust[4] = vz
+        thrust[5] = vz
         
-        # Scale and limit thrust
-        max_horizontal = max(abs(thrust[0]), abs(thrust[1]), abs(thrust[2]), abs(thrust[3]))
-        if max_horizontal > self.max_thrust:
-            scale = self.max_thrust / max_horizontal
-            thrust[0:4] *= scale
-        
-        max_vertical = max(abs(thrust[4]), abs(thrust[5]))
-        if max_vertical > self.max_thrust:
-            scale = self.max_thrust / max_vertical
-            thrust[4:6] *= scale
+        # Apply limits
+        for i in range(6):
+            thrust[i] = np.clip(thrust[i], -self.max_thrust, self.max_thrust)
         
         # Publish commands
         for i, pub in enumerate(self.thruster_pubs):
-            msg = Float64()
-            msg.data = float(thrust[i])
-            pub.publish(msg)
+            cmd_msg = Float64()
+            cmd_msg.data = float(thrust[i])
+            pub.publish(cmd_msg)
+        
+        # Log periodically (every 20 messages)
+        if self.cmd_count % 20 == 0:
+            self.get_logger().info(
+                f'Thrust: T1={thrust[0]:.2f}, T2={thrust[1]:.2f}, T3={thrust[2]:.2f}, '
+                f'T4={thrust[3]:.2f}, T5={thrust[4]:.2f}, T6={thrust[5]:.2f}'
+            )
 
 
 def main(args=None):

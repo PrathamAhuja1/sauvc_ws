@@ -39,6 +39,7 @@ setup(
         'bluerov_teleop = auv_core.bluerov_teleop_ign:main',
         'gate_detector_node = auv_core.gate_detector_node:main',
         'gate_navigator_node = auv_core.gate_navigator_node:main',
+        'diagnostic_node = auv_core.diagnostic_node:main',
     ],
 },
 )

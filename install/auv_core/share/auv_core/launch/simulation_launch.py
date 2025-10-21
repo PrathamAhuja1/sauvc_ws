@@ -28,6 +28,7 @@ def generate_launch_description():
             '-p',
             f'config_file:={os.path.join(pkg_auv_core, "config", "gz_bridge.yaml")}'
         ],
+        parameters=[{'use_sim_time': True}],
         output='screen'
     )
 
@@ -43,8 +44,16 @@ def generate_launch_description():
         }]
     )
 
-    # --- AUV Core Nodes ---
-    
+    # Odometry Relay - Convert ground truth to filtered odometry for testing
+    odom_relay = Node(
+        package='topic_tools',
+        executable='relay',
+        name='odom_relay',
+        arguments=['/ground_truth/odom', '/odometry/filtered'],
+        parameters=[{'use_sim_time': True}],
+        output='screen'
+    )
+
     # Gate Detector Node
     gate_detector_node = Node(
         package='auv_core',
@@ -54,9 +63,12 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': True,
             'publish_debug': True,
-            'min_contour_area': 800,
-            'aspect_ratio_threshold': 2.5,
-            'gate_width_meters': 1.5
+            'min_contour_area': 500,
+            'aspect_ratio_threshold': 2.0,
+            'gate_width_meters': 1.5,
+            'flare_min_area': 300,
+            'flare_aspect_min': 3.0,
+            'flare_danger_threshold': 0.3
         }]
     )
 
@@ -69,15 +81,17 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': True,
             'target_depth': -1.5,
-            'search_forward_speed': 0.3,
-            'approach_speed': 0.4,
-            'passing_speed': 0.5,
-            'alignment_threshold': 0.15,
-            'safe_distance_threshold': 2.5,
-            'passing_distance_threshold': 1.0,
-            'yaw_correction_gain': 0.5,
-            'depth_correction_gain': 0.8,
-            'flare_avoidance_gain': 0.7
+            'search_forward_speed': 0.4,
+            'approach_speed': 0.5,
+            'passing_speed': 0.6,
+            'passing_duration': 5.0,
+            'alignment_threshold': 0.2,
+            'safe_distance_threshold': 3.0,
+            'passing_distance_threshold': 1.5,
+            'yaw_correction_gain': 0.6,
+            'depth_correction_gain': 1.0,
+            'flare_avoidance_gain': 0.8,
+            'flare_avoidance_duration': 3.0
         }]
     )
 
@@ -88,21 +102,13 @@ def generate_launch_description():
         name='simple_thruster_mapper',
         output='screen',
         parameters=[{
-            'use_sim_time': True
+            'use_sim_time': True,
+            'max_thrust': 10.0
         }]
     )
 
-    # Image visualization (optional - for debugging)
-    image_view_node = Node(
-        package='rqt_image_view',
-        executable='rqt_image_view',
-        name='camera_viewer',
-        arguments=['/camera_down/image_raw'],
-        parameters=[{'use_sim_time': True}]
-    )
-
-    # Debug image viewer (optional)
-    debug_image_view_node = Node(
+    # RQT Image View for debugging (optional - comment out if not needed)
+    debug_image_view = Node(
         package='rqt_image_view',
         executable='rqt_image_view',
         name='debug_viewer',
@@ -111,15 +117,14 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument('use_sim_time', default_value='true', description='Use simulation (Gazebo) clock'),
+        DeclareLaunchArgument('use_sim_time', default_value='true', description='Use simulation clock'),
         gazebo,
-        # Robot spawns from world file, so bridge and other nodes can start sooner
-        TimerAction(period=5.0, actions=[bridge]),
-        TimerAction(period=6.0, actions=[robot_state_publisher]),
-        TimerAction(period=7.0, actions=[gate_detector_node]),
-        TimerAction(period=7.0, actions=[gate_navigator_node]),
-        TimerAction(period=7.0, actions=[simple_thruster_mapper]),
-        # Uncomment these to view camera feeds
-        # TimerAction(period=8.0, actions=[image_view_node]),
-        # TimerAction(period=8.0, actions=[debug_image_view_node]),
+        TimerAction(period=3.0, actions=[bridge]),
+        TimerAction(period=4.0, actions=[robot_state_publisher]),
+        TimerAction(period=5.0, actions=[odom_relay]),  # Add odometry relay
+        TimerAction(period=6.0, actions=[gate_detector_node]),
+        TimerAction(period=6.0, actions=[gate_navigator_node]),
+        TimerAction(period=6.0, actions=[simple_thruster_mapper]),
+        # Uncomment to view debug images:
+        # TimerAction(period=8.0, actions=[debug_image_view]),
     ])
