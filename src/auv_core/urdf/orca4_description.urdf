@@ -198,12 +198,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster1_joint</joint_name>
-      <thrust_coefficient>0.2</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient> 
       <topic>/model/orca4_ign/joint/thruster1_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd> 
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
@@ -213,12 +215,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster2_joint</joint_name>
-      <thrust_coefficient>0.2</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster2_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd>
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
@@ -228,12 +232,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster3_joint</joint_name>
-      <thrust_coefficient>-0.2</thrust_coefficient>
+      <thrust_coefficient>-0.02</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster3_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd>
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
@@ -243,12 +249,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster4_joint</joint_name>
-      <thrust_coefficient>-0.2</thrust_coefficient>
+      <thrust_coefficient>-0.02</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster4_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd>
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
@@ -258,12 +266,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster5_joint</joint_name>
-      <thrust_coefficient>0.2</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster5_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd>
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
@@ -273,12 +283,14 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster6_joint</joint_name>
-      <thrust_coefficient>-0.2</thrust_coefficient>
+      <thrust_coefficient>-0.02</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster6_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
-      <use_angvel_cmd>False</use_angvel_cmd>
+      <use_angvel_cmd>true</use_angvel_cmd>
+      <max_thrust_cmd>300</max_thrust_cmd>
+      <min_thrust_cmd>-300</min_thrust_cmd>
     </plugin>
     </gazebo>
 
