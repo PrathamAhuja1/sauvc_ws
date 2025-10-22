@@ -11,12 +11,14 @@ class SimpleThrusterMapper(Node):
     def __init__(self):
         super().__init__('simple_thruster_mapper')
         
-        # Parameters
+        # Parameters - INCREASED for stronger thrust
         self.declare_parameter('max_thrust', 10.0)
-        self.declare_parameter('thrust_scale', 3.0)  # Scaling factor to increase thrust
+        self.declare_parameter('thrust_scale', 5.0)  # INCREASED from 3.0 to 5.0
+        self.declare_parameter('vertical_thrust_boost', 2.0)  # NEW: Extra boost for vertical
         
         self.max_thrust = self.get_parameter('max_thrust').value
         self.thrust_scale = self.get_parameter('thrust_scale').value
+        self.vertical_boost = self.get_parameter('vertical_thrust_boost').value
         
         # Subscribe to cmd_vel
         self.cmd_vel_sub = self.create_subscription(
@@ -34,13 +36,19 @@ class SimpleThrusterMapper(Node):
         
         # Stats
         self.cmd_count = 0
+        self.last_cmd_time = self.get_clock().now()
         self.timer = self.create_timer(5.0, self.print_stats)
         
         self.get_logger().info('Simple Thruster Mapper initialized')
-        self.get_logger().info(f'Max thrust: {self.max_thrust}, Scale: {self.thrust_scale}')
+        self.get_logger().info(f'Max thrust: {self.max_thrust}, Scale: {self.thrust_scale}, Vertical Boost: {self.vertical_boost}')
     
     def print_stats(self):
         self.get_logger().info(f'Thruster Mapper: Processed {self.cmd_count} cmd_vel messages')
+        
+        # Check if we're receiving commands
+        time_since_last = (self.get_clock().now() - self.last_cmd_time).nanoseconds / 1e9
+        if time_since_last > 2.0:
+            self.get_logger().warn(f'No cmd_vel received for {time_since_last:.1f}s')
     
     def cmd_vel_callback(self, msg: Twist):
         """
@@ -48,6 +56,7 @@ class SimpleThrusterMapper(Node):
         Twist frame: X=forward, Y=left, Z=up, Yaw=rotation about Z
         """
         self.cmd_count += 1
+        self.last_cmd_time = self.get_clock().now()
         
         # Extract velocities
         vx = msg.linear.x   # Forward/backward
@@ -58,22 +67,18 @@ class SimpleThrusterMapper(Node):
         # Apply scaling
         vx *= self.thrust_scale
         vy *= self.thrust_scale
-        vz *= self.thrust_scale
+        vz *= self.thrust_scale * self.vertical_boost  # EXTRA BOOST for vertical
         yaw *= self.thrust_scale
         
-        # Thruster allocation matrix for BlueROV2/Orca4 configuration
-        # Thrusters 1-4 are at 45-degree angles
-        # Simplified model based on URDF configuration:
-        # Thruster 1: Front-left 
-        # Thruster 2: Front-right
-        # Thruster 3: Back-left 
-        # Thruster 4: Back-right
-        # Thrusters 5-6: Vertical
-        
+        # Initialize thrust array
         thrust = np.zeros(6)
         
         # Horizontal thrusters (1-4) - Vectored configuration
-        # Each thruster contributes to surge, sway, and yaw
+        # BlueROV2/Orca4 thruster layout:
+        # Thruster 1: Front-Left (-45°)
+        # Thruster 2: Front-Right (-135°) 
+        # Thruster 3: Back-Left (45°) - reversed in URDF
+        # Thruster 4: Back-Right (135°) - reversed in URDF
         
         # Thruster 1 (Front-Left, -45 deg)
         thrust[0] = vx - vy + yaw
@@ -87,7 +92,7 @@ class SimpleThrusterMapper(Node):
         # Thruster 4 (Back-Right, 135 deg) - reversed in URDF
         thrust[3] = -vx - vy - yaw
         
-        # Vertical thrusters (5-6)
+        # Vertical thrusters (5-6) - APPLY DIRECTLY
         thrust[4] = vz
         thrust[5] = vz
         
@@ -101,11 +106,12 @@ class SimpleThrusterMapper(Node):
             cmd_msg.data = float(thrust[i])
             pub.publish(cmd_msg)
         
-        # Log periodically (every 20 messages)
-        if self.cmd_count % 20 == 0:
+        # Log periodically (every 20 messages) or if vertical thrust is active
+        if self.cmd_count % 20 == 0 or abs(vz) > 0.1:
             self.get_logger().info(
                 f'Thrust: T1={thrust[0]:.2f}, T2={thrust[1]:.2f}, T3={thrust[2]:.2f}, '
-                f'T4={thrust[3]:.2f}, T5={thrust[4]:.2f}, T6={thrust[5]:.2f}'
+                f'T4={thrust[3]:.2f}, T5={thrust[4]:.2f}, T6={thrust[5]:.2f} | '
+                f'Input vz={msg.linear.z:.2f}'
             )
 
 

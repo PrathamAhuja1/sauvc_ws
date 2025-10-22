@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+"""
+Complete Mission Launch - Fixed version with Behavior Tree
+"""
 
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -59,7 +61,7 @@ def generate_launch_description():
         }]
     )
 
-    # Odometry Relay (for testing without full EKF)
+    # Odometry Relay
     odom_relay = Node(
         package='topic_tools',
         executable='relay',
@@ -69,92 +71,7 @@ def generate_launch_description():
         output='screen'
     )
 
-    # ========== PERCEPTION NODES ==========
-    
-    # Gate Detector Node (with parameters)
-    gate_detector_node = Node(
-        package='auv_core',
-        executable='gate_detector_node',
-        name='gate_detector_node',
-        output='screen',
-        parameters=[
-            gate_params,
-            {'use_sim_time': True}
-        ]
-    )
-    gate_navigator_node = Node(
-        package='auv_core',
-        executable='gate_navigator_node',
-        name='gate_navigator_node',
-        output='screen',
-        parameters=[
-            nav_params,
-            {'use_sim_time': True}
-        ]
-    )
-
-    # Flare Detector (with parameters)
-    flare_detector = Node(
-        package='auv_core',
-        executable='flare_detector_node',
-        name='flare_detector_node',
-        output='screen',
-        parameters=[
-            flare_params,
-            {'use_sim_time': True}
-        ]
-    )
-
-
-    # Simple Thruster Mapper (with parameters)
-    simple_thruster_mapper = Node(
-        package='auv_core',
-        executable='simple_thruster_mapper',
-        name='simple_thruster_mapper',
-        output='screen',
-        parameters=[
-            thruster_params,
-            {'use_sim_time': True}
-        ]
-    )
-
-    # ========== SAFETY & STATE MANAGEMENT ==========
-
-    # Enhanced Safety Monitor (with parameters)
-    safety_monitor = Node(
-        package='auv_core',
-        executable='safety_monitor',
-        name='safety_monitor',
-        output='screen',
-        parameters=[
-            safety_params,
-            {'use_sim_time': True}
-        ]
-    )
-    
-    # Enhanced Mission State Manager
-    state_manager = Node(
-        package='auv_core',
-        executable='mission_state_manager',
-        name='mission_state_manager',
-        output='screen',
-        parameters=[
-            mission_params,
-            {'use_sim_time': True}
-        ]
-    )
-
-    # Diagnostic Node
-    diagnostic_node = Node(
-        package='auv_core',
-        executable='diagnostic_node',
-        name='diagnostic_node',
-        output='screen',
-        parameters=[{'use_sim_time': True}]
-    )
-
-    # ========== STATIC TF PUBLISHERS ==========
-
+    # Static TF Publishers
     static_tf_base_to_imu = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -171,6 +88,92 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
+    # ========== PERCEPTION NODES ==========
+    
+    gate_detector_node = Node(
+        package='auv_core',
+        executable='gate_detector_node',
+        name='gate_detector_node',
+        output='screen',
+        parameters=[
+            gate_params,
+            {'use_sim_time': True}
+        ]
+    )
+
+    flare_detector = Node(
+        package='auv_core',
+        executable='flare_detector_node',
+        name='flare_detector_node',
+        output='screen',
+        parameters=[
+            flare_params,
+            {'use_sim_time': True}
+        ]
+    )
+
+    # ========== CONTROL & NAVIGATION ==========
+    
+    # Simple Thruster Mapper
+    simple_thruster_mapper = Node(
+        package='auv_core',
+        executable='simple_thruster_mapper',
+        name='simple_thruster_mapper',
+        output='screen',
+        parameters=[
+            thruster_params,
+            {'use_sim_time': True}
+        ]
+    )
+
+    # ========== NEW: BEHAVIOR TREE NODE (Main Autonomous Controller) ==========
+    
+    behavior_tree_node = Node(
+        package='auv_core',
+        executable='behavior_tree_node',
+        name='auv_behavior_tree_node',
+        output='screen',
+        parameters=[
+            {
+                'use_sim_time': True,
+                'bt_tick_rate': 20.0,
+                'mission_timeout': 900.0
+            }
+        ]
+    )
+
+    # ========== SAFETY & STATE MANAGEMENT ==========
+
+    safety_monitor = Node(
+        package='auv_core',
+        executable='safety_monitor',
+        name='safety_monitor',
+        output='screen',
+        parameters=[
+            safety_params,
+            {'use_sim_time': True}
+        ]
+    )
+    
+    state_manager = Node(
+        package='auv_core',
+        executable='mission_state_manager',
+        name='mission_state_manager',
+        output='screen',
+        parameters=[
+            mission_params,
+            {'use_sim_time': True}
+        ]
+    )
+
+    diagnostic_node = Node(
+        package='auv_core',
+        executable='diagnostic_node',
+        name='diagnostic_node',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+
     # ========== LAUNCH SEQUENCE ==========
 
     return LaunchDescription([
@@ -178,12 +181,6 @@ def generate_launch_description():
             'use_sim_time', 
             default_value='true', 
             description='Use simulation clock'
-        ),
-        
-        DeclareLaunchArgument(
-            'params_file',
-            default_value=mission_params,
-            description='Path to mission parameters file'
         ),
         
         # Start Gazebo
@@ -195,7 +192,6 @@ def generate_launch_description():
         TimerAction(period=4.5, actions=[
             static_tf_base_to_imu,
             static_tf_base_to_forward_cam,
-        #    tf_manager
         ]),
         TimerAction(period=5.0, actions=[odom_relay]),
         
@@ -203,19 +199,22 @@ def generate_launch_description():
         TimerAction(period=6.0, actions=[
             gate_detector_node,
             flare_detector,
-        #    acoustic_detector
         ]),
         
-        # Control & navigation
+        # Control layer
         TimerAction(period=7.0, actions=[
-            gate_navigator_node,
             simple_thruster_mapper
         ]),
         
-        # Safety & state management
+        # Safety & diagnostics
         TimerAction(period=7.5, actions=[
             safety_monitor,
             state_manager,
             diagnostic_node
+        ]),
+        
+        # ========== START AUTONOMOUS MISSION ==========
+        TimerAction(period=8.0, actions=[
+            behavior_tree_node  # This is the main controller!
         ]),
     ])

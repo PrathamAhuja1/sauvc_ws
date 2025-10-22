@@ -53,6 +53,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core-0.0.2-py3.10.egg-info/dependency_links.txt
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core-0.0.2-py3.10.egg-info/PKG-INFO
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/acoustic_pinger_detector
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/behavior_tree_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/bluerov_teleop
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/control_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/depth_processor_node

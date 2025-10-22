@@ -51,6 +51,9 @@ setup(
             
             # Diagnostics
             'diagnostic_node = auv_core.diagnostic_node:main',
+
+            #Mission Planner
+            'behavior_tree_node = auv_core.BT:main',
         ],
     },
 )

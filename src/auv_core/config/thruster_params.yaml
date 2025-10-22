@@ -1,4 +1,4 @@
-# Used by: simple_thruster_mapper.py
+# Thruster Mapper Parameters - OPTIMIZED FOR MOVEMENT
 
 simple_thruster_mapper:
   ros__parameters:
@@ -6,14 +6,17 @@ simple_thruster_mapper:
     max_thrust: 10.0
     min_thrust: -10.0
     
-    # Scaling factor (tune based on actual performance)
-    thrust_scale: 3.0
+    # Scaling factor - INCREASED for stronger thrust
+    thrust_scale: 5.0  # Was 3.0, now 5.0
+    
+    # Vertical thrust boost - NEW PARAMETER
+    vertical_thrust_boost: 2.0  # Extra multiplier for Z-axis
     
     # Deadband (ignore small commands)
     deadband_threshold: 0.05
     
     # Rate limiting (prevent sudden changes)
-    max_thrust_rate: 5.0  # units/second
+    max_thrust_rate: 10.0  # Increased from 5.0
     
     # Individual thruster trim (for hardware calibration)
     thruster_trim:
