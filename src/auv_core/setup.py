@@ -21,8 +21,8 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Your Name',
-    maintainer_email='your_email@example.com',
+    maintainer='Pratham Ahuja',
+    maintainer_email='pratham.ahuja309@gmail.com',
     description='SAUVC',
     license='Apache License 2.0',
     tests_require=['pytest'],
@@ -37,7 +37,7 @@ setup(
             
             # Vision perception
             'gate_detector_node = auv_core.gate_detector_node:main',
-            'flare_detector_node = auv_core.Flare_Detection:main',
+            'flare_detector_node = auv_core.flare_Detection:main',
             
             # Navigation & control
             'gate_navigator_node = auv_core.gate_navigator_node:main',

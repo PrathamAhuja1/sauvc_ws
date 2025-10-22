@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: auv-core
-Version: 0.0.1
-Summary: Core package for SAUVC AUV with autonomous gate navigation
+Version: 0.0.2
+Summary: SAUVC
 Home-page: UNKNOWN
 Maintainer: Your Name
 Maintainer-email: your_email@example.com

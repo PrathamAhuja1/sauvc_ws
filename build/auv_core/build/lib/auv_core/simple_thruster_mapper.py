@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Simple Thruster Mapper Node - FIXED VERSION
-Converts Twist commands (cmd_vel) to individual thruster commands for 6-thruster configuration
-"""
 
 import rclpy
 from rclpy.node import Node
