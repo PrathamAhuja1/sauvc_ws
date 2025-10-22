@@ -25,20 +25,20 @@ class GateNavigatorNode(Node):
         self.state = self.SEARCHING
         
         # Parameters
-        self.declare_parameter('target_depth', -1.5)
-        self.declare_parameter('search_forward_speed', 0.3)
-        self.declare_parameter('approach_speed', 0.4)
-        self.declare_parameter('passing_speed', 0.5)
-        self.declare_parameter('passing_duration', 5.0)
-        self.declare_parameter('alignment_threshold', 0.15)
-        self.declare_parameter('safe_distance_threshold', 2.5)
-        self.declare_parameter('passing_distance_threshold', 1.0)
-        self.declare_parameter('yaw_correction_gain', 0.5)
-        self.declare_parameter('depth_correction_gain', 0.8)
-        self.declare_parameter('flare_avoidance_gain', 0.7)
-        self.declare_parameter('flare_avoidance_duration', 3.0)
     #    self.declare_parameter('target_depth', -1.5)
-        self.declare_parameter('search_forward_speed', 0.3)
+    #    self.declare_parameter('search_forward_speed', 0.3)
+    #    self.declare_parameter('approach_speed', 0.4)
+    #    self.declare_parameter('passing_speed', 0.5)
+    #    self.declare_parameter('passing_duration', 5.0)
+    #    self.declare_parameter('alignment_threshold', 0.15)
+    #    self.declare_parameter('safe_distance_threshold', 2.5)
+    #    self.declare_parameter('passing_distance_threshold', 1.0)
+    #    self.declare_parameter('yaw_correction_gain', 0.5)
+    #    self.declare_parameter('depth_correction_gain', 0.8)
+    #    self.declare_parameter('flare_avoidance_gain', 0.7)
+    #    self.declare_parameter('flare_avoidance_duration', 3.0)
+    #    self.declare_parameter('target_depth', -1.5)
+    #    self.declare_parameter('search_forward_speed', 0.3)
 
 
         self.target_depth = self.get_parameter('target_depth').value
