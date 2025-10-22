@@ -82,6 +82,16 @@ def generate_launch_description():
             {'use_sim_time': True}
         ]
     )
+    gate_navigator_node = Node(
+        package='auv_core',
+        executable='gate_navigator_node',
+        name='gate_navigator_node',
+        output='screen',
+        parameters=[
+            nav_params,
+            {'use_sim_time': True}
+        ]
+    )
 
     # Flare Detector (with parameters)
     flare_detector = Node(
@@ -95,31 +105,6 @@ def generate_launch_description():
         ]
     )
 
-    # Acoustic Pinger Detector
-    acoustic_detector = Node(
-        package='auv_core',
-        executable='acoustic_pinger_detector',
-        name='acoustic_pinger_detector',
-        output='screen',
-        parameters=[
-            mission_params,
-            {'use_sim_time': True}
-        ]
-    )
-
-    # ========== CONTROL & NAVIGATION NODES ==========
-
-    # Gate Navigator Node (with parameters)
-    gate_navigator_node = Node(
-        package='auv_core',
-        executable='gate_navigator_node',
-        name='gate_navigator_node',
-        output='screen',
-        parameters=[
-            nav_params,
-            {'use_sim_time': True}
-        ]
-    )
 
     # Simple Thruster Mapper (with parameters)
     simple_thruster_mapper = Node(
@@ -138,8 +123,8 @@ def generate_launch_description():
     # Enhanced Safety Monitor (with parameters)
     safety_monitor = Node(
         package='auv_core',
-        executable='enhanced_safety_monitor',
-        name='enhanced_safety_monitor',
+        executable='safety_monitor',
+        name='safety_monitor',
         output='screen',
         parameters=[
             safety_params,
@@ -150,22 +135,13 @@ def generate_launch_description():
     # Enhanced Mission State Manager
     state_manager = Node(
         package='auv_core',
-        executable='mission_state_manager_enhanced',
-        name='mission_state_manager_enhanced',
+        executable='mission_state_manager',
+        name='mission_state_manager',
         output='screen',
         parameters=[
             mission_params,
             {'use_sim_time': True}
         ]
-    )
-
-    # TF Tree Manager
-    tf_manager = Node(
-        package='auv_core',
-        executable='tf_tree_manager',
-        name='tf_tree_manager',
-        output='screen',
-        parameters=[{'use_sim_time': True}]
     )
 
     # Diagnostic Node
@@ -227,7 +203,7 @@ def generate_launch_description():
         TimerAction(period=6.0, actions=[
             gate_detector_node,
             flare_detector,
-            acoustic_detector
+        #    acoustic_detector
         ]),
         
         # Control & navigation

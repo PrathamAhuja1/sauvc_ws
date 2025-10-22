@@ -4,13 +4,11 @@ bluerov_teleop = auv_core.bluerov_teleop_ign:main
 control_node = auv_core.control_node:main
 depth_processor_node = auv_core.depth_processor_node:main
 diagnostic_node = auv_core.diagnostic_node:main
-enhanced_safety_monitor = auv_core.enhanced_safety_monitor:main
-flare_detector_node = auv_core.Flare_Detection:main
+flare_detector_node = auv_core.flare_Detection:main
 gate_detector_node = auv_core.gate_detector_node:main
 gate_navigator_node = auv_core.gate_navigator_node:main
 mission_state_manager = auv_core.mission_state_manager:main
-mission_state_manager_enhanced = auv_core.mission_state_manager_enhanced:main
 optical_flow_node = auv_core.optical_flow_node:main
-safety_monitor_node = auv_core.safety_monitor_node:main
+safety_monitor = auv_core.safety_monitor_node:main
 simple_thruster_mapper = auv_core.simple_thruster_mapper:main
 

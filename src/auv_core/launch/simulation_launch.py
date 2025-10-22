@@ -123,8 +123,8 @@ def generate_launch_description():
     # Enhanced Safety Monitor (with parameters)
     safety_monitor = Node(
         package='auv_core',
-        executable='enhanced_safety_monitor',
-        name='enhanced_safety_monitor',
+        executable='safety_monitor',
+        name='safety_monitor',
         output='screen',
         parameters=[
             safety_params,
@@ -135,8 +135,8 @@ def generate_launch_description():
     # Enhanced Mission State Manager
     state_manager = Node(
         package='auv_core',
-        executable='mission_state_manager_enhanced',
-        name='mission_state_manager_enhanced',
+        executable='mission_state_manager',
+        name='mission_state_manager',
         output='screen',
         parameters=[
             mission_params,

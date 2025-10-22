@@ -9,12 +9,12 @@ setup.py
 ../../build/auv_core/auv_core.egg-info/top_level.txt
 ../../build/auv_core/auv_core.egg-info/zip-safe
 auv_core/BT.py
-auv_core/Flare_Detection.py
 auv_core/__init__.py
 auv_core/bluerov_teleop_ign.py
 auv_core/control_node.py
 auv_core/depth_processor_node.py
 auv_core/diagnostic_node.py
+auv_core/flare_Detection.py
 auv_core/gate_detector_node.py
 auv_core/gate_navigator_node.py
 auv_core/mission_state_manager.py

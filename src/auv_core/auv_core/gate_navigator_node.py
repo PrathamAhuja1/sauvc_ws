@@ -37,7 +37,7 @@ class GateNavigatorNode(Node):
         self.declare_parameter('depth_correction_gain', 0.8)
         self.declare_parameter('flare_avoidance_gain', 0.7)
         self.declare_parameter('flare_avoidance_duration', 3.0)
-        self.declare_parameter('target_depth', -1.5)
+    #    self.declare_parameter('target_depth', -1.5)
         self.declare_parameter('search_forward_speed', 0.3)
 
 

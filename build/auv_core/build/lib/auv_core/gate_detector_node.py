@@ -29,7 +29,7 @@ class GateDetectorNode(Node):
         self.declare_parameter('flare_min_area', 400)
         self.declare_parameter('flare_aspect_min', 3.0)
         self.declare_parameter('flare_danger_threshold', 0.3) 
-        self.declare_parameter('min_contour_area', 500)
+    #    self.declare_parameter('min_contour_area', 500)
         self.declare_parameter('aspect_ratio_threshold', 2.0)
         self.declare_parameter('publish_debug', True)
         

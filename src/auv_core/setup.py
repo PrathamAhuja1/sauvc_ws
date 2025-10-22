@@ -43,18 +43,14 @@ setup(
             'gate_navigator_node = auv_core.gate_navigator_node:main',
             
             # NEW: Enhanced safety & state management
-            'enhanced_safety_monitor = auv_core.enhanced_safety_monitor:main',
-            'mission_state_manager_enhanced = auv_core.mission_state_manager_enhanced:main',
+            'safety_monitor = auv_core.safety_monitor_node:main',
+            'mission_state_manager = auv_core.mission_state_manager:main',
             
             # NEW: Acoustic detection
             'acoustic_pinger_detector = auv_core.acoustic_pinger_detector:main',
             
             # Diagnostics
             'diagnostic_node = auv_core.diagnostic_node:main',
-            
-            # Legacy (keep for compatibility)
-            'safety_monitor_node = auv_core.safety_monitor_node:main',
-            'mission_state_manager = auv_core.mission_state_manager:main',
         ],
     },
 )
