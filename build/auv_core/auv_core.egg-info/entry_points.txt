@@ -5,6 +5,7 @@ bluerov_teleop = auv_core.bluerov_teleop_ign:main
 control_node = auv_core.control_node:main
 depth_processor_node = auv_core.depth_processor_node:main
 diagnostic_node = auv_core.diagnostic_node:main
+emergency_test = auv_core.emergency_test:main
 flare_detector_node = auv_core.flare_Detection:main
 gate_detector_node = auv_core.gate_detector_node:main
 gate_navigator_node = auv_core.gate_navigator_node:main

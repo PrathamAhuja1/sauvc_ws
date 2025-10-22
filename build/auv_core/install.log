@@ -2,6 +2,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/optical_flow_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/gate_detector_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/depth_processor_node.py
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/emergency_test.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/BT.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/control_node.py
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/diagnostic_node.py
@@ -15,6 +16,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/optical_flow_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/gate_detector_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/depth_processor_node.cpython-310.pyc
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/emergency_test.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/BT.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/control_node.cpython-310.pyc
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/python3.10/site-packages/auv_core/__pycache__/diagnostic_node.cpython-310.pyc
@@ -58,6 +60,7 @@
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/control_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/depth_processor_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/diagnostic_node
+/home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/emergency_test
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/flare_detector_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/gate_detector_node
 /home/pratham/Documents/sauvc_ws/install/auv_core/lib/auv_core/gate_navigator_node

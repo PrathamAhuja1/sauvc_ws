@@ -54,6 +54,7 @@ setup(
 
             #Mission Planner
             'behavior_tree_node = auv_core.BT:main',
+            'emergency_test = auv_core.emergency_test:main' ##########
         ],
     },
 )

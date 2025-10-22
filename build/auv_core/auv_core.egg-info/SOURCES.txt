@@ -14,6 +14,7 @@ auv_core/bluerov_teleop_ign.py
 auv_core/control_node.py
 auv_core/depth_processor_node.py
 auv_core/diagnostic_node.py
+auv_core/emergency_test.py
 auv_core/flare_Detection.py
 auv_core/gate_detector_node.py
 auv_core/gate_navigator_node.py
