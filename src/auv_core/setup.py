@@ -6,7 +6,7 @@ package_name = 'auv_core'
 
 setup(
     name=package_name,
-    version='0.0.1',
+    version='0.0.2',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -23,26 +23,38 @@ setup(
     zip_safe=True,
     maintainer='Your Name',
     maintainer_email='your_email@example.com',
-    description='Core package for SAUVC AUV with autonomous gate navigation',
+    description='SAUVC',
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
-    'console_scripts': [
-        'optical_flow_node = auv_core.optical_flow_node:main',
-        'depth_processor_node = auv_core.depth_processor_node:main',
-        'perception_node = auv_core.perception_node:main',
-        'mission_planner_node = auv_core.mission_planner_node:main',
-        'control_node = auv_core.control_node:main',
-        'serial_bridge_node = auv_core.serial_bridge_node:main',
-        'sim_thruster_mapper = auv_core.sim_thruster_mapper:main',
-        'simple_thruster_mapper = auv_core.simple_thruster_mapper:main',
-        'bluerov_teleop = auv_core.bluerov_teleop_ign:main',
-        'gate_detector_node = auv_core.gate_detector_node:main',
-        'gate_navigator_node = auv_core.gate_navigator_node:main',
-        'diagnostic_node = auv_core.diagnostic_node:main',
-        'safety_monitor_node = auv_core.safety_monitor_node:main',
-        'mission_state_manager = auv_core.mission_state_manager:main',
-        'flare_detector_node = auv_core.Flare_Detection:main',
-    ],
-},
+        'console_scripts': [
+   
+            'optical_flow_node = auv_core.optical_flow_node:main',
+            'depth_processor_node = auv_core.depth_processor_node:main',
+            'control_node = auv_core.control_node:main',
+            'simple_thruster_mapper = auv_core.simple_thruster_mapper:main',
+            'bluerov_teleop = auv_core.bluerov_teleop_ign:main',
+            
+            # Vision perception
+            'gate_detector_node = auv_core.gate_detector_node:main',
+            'flare_detector_node = auv_core.Flare_Detection:main',
+            
+            # Navigation & control
+            'gate_navigator_node = auv_core.gate_navigator_node:main',
+            
+            # NEW: Enhanced safety & state management
+            'enhanced_safety_monitor = auv_core.enhanced_safety_monitor:main',
+            'mission_state_manager_enhanced = auv_core.mission_state_manager_enhanced:main',
+            
+            # NEW: Acoustic detection
+            'acoustic_pinger_detector = auv_core.acoustic_pinger_detector:main',
+            
+            # Diagnostics
+            'diagnostic_node = auv_core.diagnostic_node:main',
+            
+            # Legacy (keep for compatibility)
+            'safety_monitor_node = auv_core.safety_monitor_node:main',
+            'mission_state_manager = auv_core.mission_state_manager:main',
+        ],
+    },
 )
