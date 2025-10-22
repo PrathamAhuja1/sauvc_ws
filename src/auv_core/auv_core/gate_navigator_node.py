@@ -12,7 +12,7 @@ import time
 
 class GateNavigatorNode(Node):
     def __init__(self):
-        super().__init__('gate_navigator_node')
+        super().__init__('gate_navigator_node', automatically_declare_parameters_from_overrides=True)
         
         # States
         self.SEARCHING = 0
@@ -24,35 +24,21 @@ class GateNavigatorNode(Node):
         
         self.state = self.SEARCHING
         
-        # Parameters
-    #    self.declare_parameter('target_depth', -1.5)
-    #    self.declare_parameter('search_forward_speed', 0.3)
-    #    self.declare_parameter('approach_speed', 0.4)
-    #    self.declare_parameter('passing_speed', 0.5)
-    #    self.declare_parameter('passing_duration', 5.0)
-    #    self.declare_parameter('alignment_threshold', 0.15)
-    #    self.declare_parameter('safe_distance_threshold', 2.5)
-    #    self.declare_parameter('passing_distance_threshold', 1.0)
-    #    self.declare_parameter('yaw_correction_gain', 0.5)
-    #    self.declare_parameter('depth_correction_gain', 0.8)
-    #    self.declare_parameter('flare_avoidance_gain', 0.7)
-    #    self.declare_parameter('flare_avoidance_duration', 3.0)
-    #    self.declare_parameter('target_depth', -1.5)
-    #    self.declare_parameter('search_forward_speed', 0.3)
-
-
-        self.target_depth = self.get_parameter('target_depth').value
-        self.search_speed = self.get_parameter('search_forward_speed').value
-        self.approach_speed = self.get_parameter('approach_speed').value
-        self.passing_speed = self.get_parameter('passing_speed').value
-        self.passing_duration = self.get_parameter('passing_duration').value
-        self.align_threshold = self.get_parameter('alignment_threshold').value
-        self.safe_distance = self.get_parameter('safe_distance_threshold').value
-        self.passing_distance = self.get_parameter('passing_distance_threshold').value
-        self.yaw_gain = self.get_parameter('yaw_correction_gain').value
-        self.depth_gain = self.get_parameter('depth_correction_gain').value
-        self.flare_gain = self.get_parameter('flare_avoidance_gain').value
-        self.flare_avoidance_duration = self.get_parameter('flare_avoidance_duration').value
+        # --- NEW: Parameter loading flag ---
+        self.params_loaded = False
+        
+        # --- Parameters will be initialized in control_loop ---
+        self.target_depth = 0.0
+        self.search_speed = 0.0
+        self.approach_speed = 0.0
+        self.passing_speed = 0.0
+        self.passing_duration = 0.0
+        self.align_threshold = 0.0
+        self.safe_distance = 0.0
+        self.yaw_gain = 0.0
+        self.depth_gain = 0.0
+        self.flare_gain = 0.0
+        self.flare_avoidance_duration = 0.0
         
         # State variables
         self.gate_detected = False
@@ -62,7 +48,7 @@ class GateNavigatorNode(Node):
         self.current_depth = 0.0
         self.flare_avoidance_direction = 0.0
         self.gate_lost_time = None
-        self.passing_start_time = None # Added for PASSING state
+        self.passing_start_time = None 
         self.flare_avoidance_timer = None
         
         # Subscriptions
@@ -107,7 +93,7 @@ class GateNavigatorNode(Node):
             self.flare_avoidance_timer = time.time()
         elif was_detected and not self.flare_detected:
              self.get_logger().info('Flare no longer detected.')
-             self.flare_avoidance_timer = None # Clear timer if flare is lost
+             self.flare_avoidance_timer = None 
     
     def flare_avoidance_callback(self, msg: Float32):
         self.flare_avoidance_direction = msg.data
@@ -128,13 +114,33 @@ class GateNavigatorNode(Node):
         self.current_depth = msg.pose.pose.position.z
     
     def control_loop(self):
+        # --- NEW: Robust parameter loading ---
+        if not self.params_loaded:
+            try:
+                self.target_depth = self.get_parameter('target_depth').value
+                self.search_speed = self.get_parameter('search_forward_speed').value
+                self.approach_speed = self.get_parameter('approach_speed').value
+                self.passing_speed = self.get_parameter('passing_speed').value
+                self.passing_duration = self.get_parameter('passing_duration').value
+                self.align_threshold = self.get_parameter('alignment_threshold').value
+                self.safe_distance = self.get_parameter('safe_distance_threshold').value
+                self.yaw_gain = self.get_parameter('yaw_correction_gain').value
+                self.depth_gain = self.get_parameter('depth_correction_gain').value
+                self.flare_gain = self.get_parameter('flare_avoidance_gain').value
+                self.flare_avoidance_duration = self.get_parameter('flare_avoidance_duration').value
+                
+                self.params_loaded = True
+                self.get_logger().info('Gate navigator parameters loaded successfully.')
+            except rclpy.exceptions.ParameterNotDeclaredException as e:
+                self.get_logger().warn(f'Waiting for gate navigator parameters...: {e}')
+                return # Try again on the next loop
+
         cmd = Twist()
         
         # Depth control (always active)
         depth_error = self.target_depth - self.current_depth
         cmd.linear.z = depth_error * self.depth_gain
         
-        # Check if flare avoidance is needed
         # Priority 1: Flare Avoidance
         if self.flare_detected and self.state in [self.ALIGNING, self.APPROACHING]:
             if self.flare_avoidance_timer:
@@ -167,7 +173,7 @@ class GateNavigatorNode(Node):
             return cmd
         
         cmd.linear.x = self.search_speed
-        cmd.angular.z = 0.0 # Can add search pattern (e.g., slow yaw) if needed
+        cmd.angular.z = 0.0 
         return cmd
     
     def aligning_behavior(self, cmd: Twist) -> Twist:
@@ -182,7 +188,7 @@ class GateNavigatorNode(Node):
             self.state = self.APPROACHING
             return cmd
         
-        cmd.linear.x = 0.1 # Creep forward while aligning
+        cmd.linear.x = 0.1 # Creep forward
         cmd.angular.z = -self.alignment_error * self.yaw_gain
         return cmd
     
@@ -193,16 +199,14 @@ class GateNavigatorNode(Node):
                 self.state = self.SEARCHING
             return cmd
         
-        # Check distance for passing
         if self.estimated_distance < self.safe_distance and self.estimated_distance > 0:
             self.get_logger().info('STATE: APPROACHING -> PASSING')
             self.state = self.PASSING
-            self.passing_start_time = time.time() # Start pass timer
+            self.passing_start_time = time.time()
             return cmd
         
         cmd.linear.x = self.approach_speed
         
-        # Continue to make minor alignment corrections
         if abs(self.alignment_error) > self.align_threshold:
             cmd.angular.z = -self.alignment_error * self.yaw_gain * 0.5 # Gentle correction
         else:
@@ -211,62 +215,49 @@ class GateNavigatorNode(Node):
         return cmd
     
     def avoiding_flare_behavior(self, cmd: Twist) -> Twist:
-        """Actively avoid orange flare by applying lateral (sway) thrust."""
         self.get_logger().info('STATE: AVOIDING FLARE')
 
-        # If flare is lost OR timeout is reached, return to ALIGNING
         if not self.flare_detected or (time.time() - self.flare_avoidance_timer > self.flare_avoidance_duration):
-            
             self.get_logger().info('STATE: AVOIDING_FLARE -> ALIGNING (Avoidance complete)')
             self.state = self.ALIGNING
             self.flare_avoidance_timer = None
             return cmd
         
-        # Apply lateral (sway) correction
-        # flare_avoidance_direction is -1 (move left) or +1 (move right)
         cmd.linear.y = self.flare_avoidance_direction * self.flare_gain
         
-        # Apply gate alignment (yaw) correction simultaneously, but gently
         if self.gate_detected:
             cmd.angular.z = -self.alignment_error * self.yaw_gain * 0.3
         
-        # Maintain slow forward progress
-        cmd.linear.x = self.search_speed # Use search speed to be cautious
+        cmd.linear.x = self.search_speed 
         
         return cmd
 
     def passing_behavior(self, cmd: Twist) -> Twist:
-        """Power through the gate for a fixed duration."""
         self.get_logger().info('STATE: PASSING')
 
-        # Check if passing duration has elapsed
         if time.time() - self.passing_start_time > self.passing_duration:
             self.get_logger().info('STATE: PASSING -> COMPLETED')
             self.state = self.COMPLETED
-            return self.completed_behavior(cmd) # Go to completed
+            return self.completed_behavior(cmd) 
         
-        # Full speed ahead, no yaw correction
         cmd.linear.x = self.passing_speed
-        cmd.angular.z = 0.0 # Commit to the heading
-        cmd.linear.y = 0.0  # Stop any sway
+        cmd.angular.z = 0.0 
+        cmd.linear.y = 0.0
         
         return cmd
 
     def completed_behavior(self, cmd: Twist) -> Twist:
-        """Task complete, stop the vehicle."""
         self.get_logger().info('STATE: COMPLETED. Gate navigation finished.')
         cmd.linear.x = 0.0
         cmd.linear.y = 0.0
-        cmd.linear.z = 0.0 # Maintain depth, or rise
+        cmd.linear.z = 0.0 
         cmd.angular.z = 0.0
         
-        # To prevent timer from re-triggering, destroy it
         if self.timer:
             self.timer.cancel()
             self.timer = None
             
         return cmd
-
 
 def main(args=None):
     rclpy.init(args=args)
@@ -278,7 +269,6 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
