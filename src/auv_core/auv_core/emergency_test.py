@@ -1,159 +1,110 @@
 #!/usr/bin/env python3
 """
-EMERGENCY THRUSTER TEST
-This bypasses ALL control nodes and sends commands directly
+Fixed Diagnostic Node - Uses Float64 only
 """
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
-import time
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Bool, Float64
+import math
 
-class EmergencyThrusterTest(Node):
+class DiagnosticNode(Node):
     def __init__(self):
-        super().__init__('emergency_thruster_test')
+        super().__init__('diagnostic_node')
         
-        self.current_depth = 0.0
-        self.start_depth = None
+        # State variables
+        self.odom_received = False
+        self.gate_detected = False
+        self.cmd_vel_received = False
+        self.thruster_cmds_received = [False] * 6
+        self.last_thruster_values = [0.0] * 6
         
-        # Subscribe to ground truth
+        self.last_odom = None
+        self.last_cmd_vel = None
+        
+        # Subscriptions
         self.odom_sub = self.create_subscription(
             Odometry, '/ground_truth/odom', self.odom_callback, 10)
         
-        # Publishers for ALL thrusters
-        self.thruster_pubs = {
-            1: self.create_publisher(Float64, '/thruster1_cmd', 10),
-            2: self.create_publisher(Float64, '/thruster2_cmd', 10),
-            3: self.create_publisher(Float64, '/thruster3_cmd', 10),
-            4: self.create_publisher(Float64, '/thruster4_cmd', 10),
-            5: self.create_publisher(Float64, '/thruster5_cmd', 10),
-            6: self.create_publisher(Float64, '/thruster6_cmd', 10),
-        }
+        self.cmd_vel_sub = self.create_subscription(
+            Twist, '/rp2040/cmd_vel', self.cmd_vel_callback, 10)
         
-        self.test_phase = 0
-        self.phase_start = time.time()
+        # Monitor thruster commands - FIXED: Use Float64
+        for i in range(1, 7):
+            self.create_subscription(
+                Float64, f'/thruster{i}_cmd', 
+                lambda msg, idx=i-1: self.thruster_callback(msg, idx), 10)
         
-        # Wait for initial odom
-        self.get_logger().info('⏳ Waiting for odometry...')
-        time.sleep(2.0)
+        # Status timer
+        self.timer = self.create_timer(2.0, self.print_status)
         
-        # Control loop
-        self.timer = self.create_timer(0.1, self.test_loop)
-        
-        self.get_logger().info('='*60)
-        self.get_logger().info('🚨 EMERGENCY THRUSTER TEST STARTING')
-        self.get_logger().info('='*60)
+        self.get_logger().info('Fixed Diagnostic Node started')
     
     def odom_callback(self, msg: Odometry):
-        self.current_depth = msg.pose.pose.position.z
-        if self.start_depth is None:
-            self.start_depth = self.current_depth
-            self.get_logger().info(f'📍 Starting depth: {self.start_depth:.2f}m')
+        self.odom_received = True
+        self.last_odom = msg
     
-    def send_thrust(self, t1, t2, t3, t4, t5, t6):
-        """Send thrust values to all thrusters"""
-        values = [t1, t2, t3, t4, t5, t6]
-        for i, val in enumerate(values, 1):
-            cmd = Float64()
-            cmd.data = float(val)
-            self.thruster_pubs[i].publish(cmd)
+    def cmd_vel_callback(self, msg: Twist):
+        self.cmd_vel_received = True
+        self.last_cmd_vel = msg
     
-    def test_loop(self):
-        elapsed = time.time() - self.phase_start
+    def thruster_callback(self, msg: Float64, idx: int):
+        self.thruster_cmds_received[idx] = True
+        self.last_thruster_values[idx] = msg.data
+    
+    def print_status(self):
+        self.get_logger().info('='*60)
+        self.get_logger().info('🔍 AUV DIAGNOSTIC STATUS')
+        self.get_logger().info('='*60)
         
-        # Phase 0: Test vertical thrusters MAXIMUM DOWN (10 seconds)
-        if self.test_phase == 0:
-            if elapsed < 10.0:
-                # MAXIMUM DOWNWARD THRUST
-                self.send_thrust(0, 0, 0, 0, -100, -100)
-                
-                if int(elapsed) % 2 == 0 and elapsed - int(elapsed) < 0.1:
-                    depth_change = self.current_depth - (self.start_depth or 0)
-                    self.get_logger().info(
-                        f'Phase 0 [{elapsed:.1f}s]: VERTICAL DOWN | '
-                        f'Depth: {self.current_depth:.2f}m | '
-                        f'Change: {depth_change:.3f}m | '
-                        f'T5=-100, T6=-100'
-                    )
-            else:
-                self.get_logger().info('Phase 0 COMPLETE')
-                self.test_phase = 1
-                self.phase_start = time.time()
+        # Odometry status
+        if self.odom_received and self.last_odom:
+            pos = self.last_odom.pose.pose.position
+            self.get_logger().info(f'✓ Odom: X={pos.x:.2f}, Y={pos.y:.2f}, Z={pos.z:.2f}')
+        else:
+            self.get_logger().warn('✗ No odometry')
         
-        # Phase 1: Test vertical thrusters UPWARD (10 seconds)
-        elif self.test_phase == 1:
-            if elapsed < 10.0:
-                self.send_thrust(0, 0, 0, 0, 100, 100)
-                
-                if int(elapsed) % 2 == 0 and elapsed - int(elapsed) < 0.1:
-                    depth_change = self.current_depth - (self.start_depth or 0)
-                    self.get_logger().info(
-                        f'Phase 1 [{elapsed:.1f}s]: VERTICAL UP | '
-                        f'Depth: {self.current_depth:.2f}m | '
-                        f'Change: {depth_change:.3f}m | '
-                        f'T5=100, T6=100'
-                    )
-            else:
-                self.get_logger().info('Phase 1 COMPLETE')
-                self.test_phase = 2
-                self.phase_start = time.time()
+        # Command velocity
+        if self.cmd_vel_received and self.last_cmd_vel:
+            cv = self.last_cmd_vel
+            self.get_logger().info(
+                f'✓ Cmd: vx={cv.linear.x:.2f}, vy={cv.linear.y:.2f}, '
+                f'vz={cv.linear.z:.2f}, yaw={cv.angular.z:.2f}'
+            )
+        else:
+            self.get_logger().warn('✗ No cmd_vel')
         
-        # Phase 2: Test horizontal thrusters FORWARD (10 seconds)
-        elif self.test_phase == 2:
-            if elapsed < 10.0:
-                # Forward thrust on T1 and T2
-                self.send_thrust(50, 50, -50, -50, 0, 0)
-                
-                if int(elapsed) % 2 == 0 and elapsed - int(elapsed) < 0.1:
-                    self.get_logger().info(
-                        f'Phase 2 [{elapsed:.1f}s]: FORWARD | '
-                        f'T1=50, T2=50, T3=-50, T4=-50'
-                    )
-            else:
-                self.get_logger().info('Phase 2 COMPLETE')
-                self.test_phase = 3
-                self.phase_start = time.time()
+        # Thruster commands - SHOW VALUES
+        active = sum(self.thruster_cmds_received)
+        if active > 0:
+            self.get_logger().info(f'✓ Thrusters: {active}/6 active')
+            self.get_logger().info(
+                f'  T1={self.last_thruster_values[0]:.1f}, '
+                f'T2={self.last_thruster_values[1]:.1f}, '
+                f'T3={self.last_thruster_values[2]:.1f}, '
+                f'T4={self.last_thruster_values[3]:.1f}, '
+                f'T5={self.last_thruster_values[4]:.1f}, '
+                f'T6={self.last_thruster_values[5]:.1f}'
+            )
+        else:
+            self.get_logger().warn('✗ No thruster commands')
         
-        # Phase 3: STOP and report
-        elif self.test_phase == 3:
-            self.send_thrust(0, 0, 0, 0, 0, 0)
-            
-            self.get_logger().info('='*60)
-            self.get_logger().info('🏁 TEST COMPLETE')
-            self.get_logger().info('='*60)
-            
-            if self.start_depth is not None:
-                total_change = self.current_depth - self.start_depth
-                self.get_logger().info(f'Start depth: {self.start_depth:.2f}m')
-                self.get_logger().info(f'Final depth: {self.current_depth:.2f}m')
-                self.get_logger().info(f'Total change: {total_change:.3f}m')
-                
-                if abs(total_change) < 0.01:
-                    self.get_logger().error('❌ NO MOVEMENT DETECTED!')
-                    self.get_logger().error('Problem is in Gazebo physics or URDF!')
-                else:
-                    self.get_logger().info('✅ Movement detected - thrusters work!')
-            
-            self.timer.cancel()
+        self.get_logger().info('='*60)
+
 
 def main(args=None):
     rclpy.init(args=args)
-    node = EmergencyThrusterTest()
-    
+    node = DiagnosticNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        # Stop all thrusters
-        for i in range(1, 7):
-            cmd = Float64()
-            cmd.data = 0.0
-            node.thruster_pubs[i].publish(cmd)
-        
         node.destroy_node()
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
