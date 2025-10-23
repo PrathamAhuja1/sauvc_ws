@@ -14,7 +14,7 @@ class SimpleThrusterMapper(Node):
         # Parameters
         self.declare_parameter('max_thrust', 100.0)
         self.declare_parameter('thrust_scale', 10.0)
-        self.declare_parameter('vertical_thrust_boost', 3.0)
+        self.declare_parameter('vertical_thrust_boost', 5.0)
         
         self.max_thrust = self.get_parameter('max_thrust').value
         self.thrust_scale = self.get_parameter('thrust_scale').value
@@ -66,14 +66,7 @@ class SimpleThrusterMapper(Node):
             )
     
     def cmd_vel_callback(self, msg: Twist):
-        """
-        Map Twist to thruster commands
-        
-        CRITICAL SIGN CONVENTION:
-        - cmd_vel.linear.z: NEGATIVE = go DOWN (standard AUV convention)
-        - Gazebo thruster: POSITIVE angular velocity = UPWARD thrust
-        - Therefore: NO SIGN INVERSION needed for vertical thrusters!
-        """
+
         self.cmd_count += 1
         self.last_cmd_time = self.get_clock().now()
         self.last_cmd_vel = msg
@@ -93,17 +86,10 @@ class SimpleThrusterMapper(Node):
         # Initialize thrust array
         thrust = np.zeros(6)
         
-        # ========== HORIZONTAL THRUSTERS (1-4) ==========
-        # BlueROV2/Orca4 thruster layout (vectored at 45°):
-        # T1: Front-Left  (affects +X, -Y, +Yaw)
-        # T2: Front-Right (affects +X, +Y, -Yaw)
-        # T3: Back-Left   (affects -X, +Y, +Yaw) - REVERSED in URDF
-        # T4: Back-Right  (affects -X, -Y, -Yaw) - REVERSED in URDF
-        
-        thrust[0] = vx_scaled - vy_scaled + yaw_scaled    # T1: Front-Left
-        thrust[1] = vx_scaled + vy_scaled - yaw_scaled    # T2: Front-Right
-        thrust[2] = -vx_scaled + vy_scaled + yaw_scaled   # T3: Back-Left (reversed)
-        thrust[3] = -vx_scaled - vy_scaled - yaw_scaled   # T4: Back-Right (reversed)
+        thrust[0] = vx_scaled - vy_scaled + yaw_scaled 
+        thrust[1] = vx_scaled + vy_scaled - yaw_scaled   
+        thrust[2] = vx_scaled - vy_scaled - yaw_scaled  
+        thrust[3] = vx_scaled + vy_scaled + yaw_scaled 
         
         # ========== VERTICAL THRUSTERS (5-6) ==========
         # CRITICAL FIX: Do NOT invert sign!

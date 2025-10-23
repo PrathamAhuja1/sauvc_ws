@@ -69,7 +69,7 @@ def generate_launch_description():
             '-topic', '/robot_description',
             '-x', '-20.0',
             '-y', '0.0', 
-            '-z', '-0.5',
+            '-z', '-1.5',
             '-Y', '0.0'
         ],
         output='screen',
@@ -206,7 +206,7 @@ def generate_launch_description():
         TimerAction(period=4.0, actions=[robot_state_publisher]),
         
         # CRITICAL: Spawn robot after robot_state_publisher is ready
-        TimerAction(period=5.0, actions=[spawn_robot]),
+        TimerAction(period=6.0, actions=[spawn_robot]),
         
         TimerAction(period=6.0, actions=[
             static_tf_base_to_imu,

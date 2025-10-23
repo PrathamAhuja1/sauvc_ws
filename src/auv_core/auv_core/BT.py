@@ -104,8 +104,8 @@ class SimplifiedMissionController(Node):
         # We want to go DOWN, so we need NEGATIVE thrust
         
         # Strong downward thrust (negative Z is down)
-        base_thrust = -1.5  # Increased from -1.2
-        time_factor = min(2.0, 1.0 + elapsed / 15.0)  # Ramp up faster
+        base_thrust = -0.8
+        time_factor = 1.0
         cmd.linear.z = base_thrust * time_factor
         
         cmd.angular.z = 0.0

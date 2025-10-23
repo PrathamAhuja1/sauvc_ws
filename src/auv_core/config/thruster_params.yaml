@@ -5,12 +5,11 @@ simple_thruster_mapper:
     # Thrust limits - INCREASED for better responsiveness
     max_thrust: 150.0  # Increased from 10.0
     min_thrust: -150.0
+
+    thrust_scale: 15.0 
     
-    # Scaling factor - SIGNIFICANTLY INCREASED
-    thrust_scale: 15.0  # Increased from 5.0 to 15.0
-    
-    # Vertical thrust boost - INCREASED for depth control
-    vertical_thrust_boost: 4.0  # Increased from 2.0
+
+    vertical_thrust_boost: 2.0
     
     # Deadband (ignore small commands)
     deadband_threshold: 0.02  # Reduced from 0.05
