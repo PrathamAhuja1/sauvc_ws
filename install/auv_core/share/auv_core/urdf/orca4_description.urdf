@@ -283,7 +283,7 @@
         name="ignition::gazebo::systems::Thruster">
       <namespace>orca4_ign</namespace>
       <joint_name>thruster6_joint</joint_name>
-      <thrust_coefficient>-0.3</thrust_coefficient>
+      <thrust_coefficient>0.3</thrust_coefficient>
       <topic>/model/orca4_ign/joint/thruster6_joint/cmd_vel</topic>
       <fluid_density>1000</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
