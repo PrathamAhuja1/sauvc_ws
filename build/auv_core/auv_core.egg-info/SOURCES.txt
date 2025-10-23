@@ -34,9 +34,6 @@ config/safety_params.yaml
 config/thruster_params.yaml
 launch/auv_launch.py
 launch/simulation_launch.py
-meshes/bluerov2.dae
-meshes/t200-ccw-prop.dae
-meshes/t200-cw-prop.dae
 resource/auv_core
 rviz/slam.rviz
 rviz/urdf_config.rviz
