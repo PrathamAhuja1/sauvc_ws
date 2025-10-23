@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -13,8 +12,8 @@ class SimpleThrusterMapper(Node):
         super().__init__('simple_thruster_mapper')
         
         # Parameters
-        self.declare_parameter('max_thrust', 100.0)  # INCREASED for Gazebo
-        self.declare_parameter('thrust_scale', 10.0)  # INCREASED scale
+        self.declare_parameter('max_thrust', 100.0)
+        self.declare_parameter('thrust_scale', 10.0)
         self.declare_parameter('vertical_thrust_boost', 3.0)
         
         self.max_thrust = self.get_parameter('max_thrust').value
@@ -69,7 +68,11 @@ class SimpleThrusterMapper(Node):
     def cmd_vel_callback(self, msg: Twist):
         """
         Map Twist to thruster commands
-        CRITICAL FIX: Negative vz means "go down" in AUV convention
+        
+        CRITICAL SIGN CONVENTION:
+        - cmd_vel.linear.z: NEGATIVE = go DOWN (standard AUV convention)
+        - Gazebo thruster: POSITIVE angular velocity = UPWARD thrust
+        - Therefore: NO SIGN INVERSION needed for vertical thrusters!
         """
         self.cmd_count += 1
         self.last_cmd_time = self.get_clock().now()
@@ -78,7 +81,7 @@ class SimpleThrusterMapper(Node):
         # Extract velocities
         vx = msg.linear.x   # Forward/backward
         vy = msg.linear.y   # Left/right (sway)
-        vz = msg.linear.z   # Up/down (NEGATIVE = DOWN!)
+        vz = msg.linear.z   # Up/down (NEGATIVE = DOWN in AUV convention)
         yaw = msg.angular.z # Rotation
         
         # Apply scaling
@@ -103,11 +106,14 @@ class SimpleThrusterMapper(Node):
         thrust[3] = -vx_scaled - vy_scaled - yaw_scaled   # T4: Back-Right (reversed)
         
         # ========== VERTICAL THRUSTERS (5-6) ==========
-        # CRITICAL FIX: In Gazebo, POSITIVE thrust = UP
-        # But cmd_vel.linear.z convention: NEGATIVE = DOWN
-        # So we need to INVERT the sign!
-        thrust[4] = -vz_scaled  # T5: Vertical-Left
-        thrust[5] = -vz_scaled  # T6: Vertical-Right
+        # CRITICAL FIX: Do NOT invert sign!
+        # cmd_vel.linear.z convention: negative = down
+        # Gazebo expects: positive angular velocity for upward thrust
+        # The thruster plugin and hydrodynamics handle the actual physics
+        
+        # Direct mapping (no inversion):
+        thrust[4] = vz_scaled  # T5: Vertical-Left
+        thrust[5] = vz_scaled  # T6: Vertical-Right
         
         # Apply limits
         thrust = np.clip(thrust, -self.max_thrust, self.max_thrust)

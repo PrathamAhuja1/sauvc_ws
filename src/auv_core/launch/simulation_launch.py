@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""
-Complete Mission Launch - Fixed version with Behavior Tree
-"""
 
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -23,6 +20,9 @@ def generate_launch_description():
     safety_params = os.path.join(pkg_auv_core, 'config', 'safety_params.yaml')
     thruster_params = os.path.join(pkg_auv_core, 'config', 'thruster_params.yaml')
     mission_params = os.path.join(pkg_auv_core, 'config', 'mission_params.yaml')
+    
+    # URDF file path
+    urdf_path = os.path.join(pkg_auv_core, 'urdf', 'orca4_description.urdf')
 
     # Gazebo Sim launch
     gazebo = IncludeLaunchDescription(
@@ -55,10 +55,25 @@ def generate_launch_description():
         name='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': open(os.path.join(
-                pkg_auv_core, 'urdf', 'orca4_description.urdf')).read(),
+            'robot_description': open(urdf_path).read(),
             'use_sim_time': True
         }]
+    )
+    
+    # ========== Spawn robot from URDF ==========
+    spawn_robot = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', 'orca4_ign',
+            '-topic', '/robot_description',
+            '-x', '-20.0',
+            '-y', '0.0', 
+            '-z', '-0.5',
+            '-Y', '0.0'
+        ],
+        output='screen',
+        parameters=[{'use_sim_time': True}]
     )
 
     # Odometry Relay
@@ -126,7 +141,7 @@ def generate_launch_description():
         ]
     )
 
-    # ========== NEW: BEHAVIOR TREE NODE (Main Autonomous Controller) ==========
+    # ========== BEHAVIOR TREE NODE (Main Autonomous Controller) ==========
     
     behavior_tree_node = Node(
         package='auv_core',
@@ -189,32 +204,36 @@ def generate_launch_description():
         # Core infrastructure (staggered start)
         TimerAction(period=3.0, actions=[bridge]),
         TimerAction(period=4.0, actions=[robot_state_publisher]),
-        TimerAction(period=4.5, actions=[
+        
+        # CRITICAL: Spawn robot after robot_state_publisher is ready
+        TimerAction(period=5.0, actions=[spawn_robot]),
+        
+        TimerAction(period=6.0, actions=[
             static_tf_base_to_imu,
             static_tf_base_to_forward_cam,
         ]),
-        TimerAction(period=5.0, actions=[odom_relay]),
+        TimerAction(period=7.0, actions=[odom_relay]),
         
         # Perception nodes
-        TimerAction(period=6.0, actions=[
+        TimerAction(period=8.0, actions=[
             gate_detector_node,
             flare_detector,
         ]),
         
         # Control layer
-        TimerAction(period=7.0, actions=[
+        TimerAction(period=9.0, actions=[
             simple_thruster_mapper
         ]),
         
         # Safety & diagnostics
-        TimerAction(period=7.5, actions=[
+        TimerAction(period=9.5, actions=[
             safety_monitor,
             state_manager,
             diagnostic_node
         ]),
         
         # ========== START AUTONOMOUS MISSION ==========
-        TimerAction(period=8.0, actions=[
-            behavior_tree_node  # This is the main controller!
+        TimerAction(period=10.0, actions=[
+            behavior_tree_node
         ]),
     ])

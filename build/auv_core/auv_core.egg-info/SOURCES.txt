@@ -22,6 +22,13 @@ auv_core/mission_state_manager.py
 auv_core/optical_flow_node.py
 auv_core/safety_monitor_node.py
 auv_core/simple_thruster_mapper.py
+auv_core.egg-info/PKG-INFO
+auv_core.egg-info/SOURCES.txt
+auv_core.egg-info/dependency_links.txt
+auv_core.egg-info/entry_points.txt
+auv_core.egg-info/requires.txt
+auv_core.egg-info/top_level.txt
+auv_core.egg-info/zip-safe
 config/bridge_config.yaml
 config/config_stereo.yaml
 config/ekf.yaml
@@ -40,8 +47,5 @@ models/orca4_ign/meshes/t200-cw-prop.dae
 resource/auv_core
 rviz/slam.rviz
 rviz/urdf_config.rviz
-test/test_copyright.py
-test/test_flake8.py
-test/test_pep257.py
 urdf/orca4_description.urdf
 worlds/sauvc_pool.sdf

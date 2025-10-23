@@ -96,14 +96,27 @@ class SimplifiedMissionController(Node):
         cmd.linear.x = 0.0
         cmd.linear.y = 0.0
         
-        # Aggressive depth control - increase thrust the longer we take
-        base_thrust = -1.2  # Strong downward thrust (negative Z is down)
-        time_factor = min(1.5, 1.0 + elapsed / 20.0)  # Increase over time
+        # CRITICAL FIX: In standard AUV/ROS convention:
+        # - Negative Z velocity = go DOWN
+        # - Positive Z velocity = go UP
+        # Since target_depth is NEGATIVE (-1.5m), and we're at 0m,
+        # depth_error = -1.5 - 0 = -1.5 (negative)
+        # We want to go DOWN, so we need NEGATIVE thrust
+        
+        # Strong downward thrust (negative Z is down)
+        base_thrust = -1.5  # Increased from -1.2
+        time_factor = min(2.0, 1.0 + elapsed / 15.0)  # Ramp up faster
         cmd.linear.z = base_thrust * time_factor
         
         cmd.angular.z = 0.0
         
         self.cmd_vel_pub.publish(cmd)
+        
+        # Debug logging
+        if elapsed < 5.0 or int(elapsed) % 5 == 0:
+            self.get_logger().info(
+                f'Thrust command: vz={cmd.linear.z:.2f} (factor={time_factor:.2f})'
+            )
     
     def handle_searching(self):
         """Search for gate while maintaining depth"""
@@ -126,7 +139,7 @@ class SimplifiedMissionController(Node):
         
         # Depth correction
         depth_error = self.target_depth - self.current_depth
-        cmd.linear.z = depth_error * 0.8
+        cmd.linear.z = depth_error * 1.0  # Proportional control
         
         # Slow forward search
         cmd.linear.x = 0.3

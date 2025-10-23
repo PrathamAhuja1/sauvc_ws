@@ -1037,11 +1037,11 @@
 
       </link>
     </model>
-
+<!--
     <include>
 	  <uri>model://simulation/models/orca4_ign</uri>
 	  <pose>-20 0 -0.5 0 0 0</pose>
     </include>
-
+-->
   </world>
 </sdf>
