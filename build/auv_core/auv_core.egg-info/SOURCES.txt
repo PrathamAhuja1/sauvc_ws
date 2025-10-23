@@ -41,9 +41,6 @@ config/safety_params.yaml
 config/thruster_params.yaml
 launch/auv_launch.py
 launch/simulation_launch.py
-models/orca4_ign/meshes/bluerov2.dae
-models/orca4_ign/meshes/t200-ccw-prop.dae
-models/orca4_ign/meshes/t200-cw-prop.dae
 resource/auv_core
 rviz/slam.rviz
 rviz/urdf_config.rviz
