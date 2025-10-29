@@ -72,7 +72,7 @@ class EnhancedSafetyMonitor(Node):
         self.imu_sub = self.create_subscription(
             Imu, '/imu/data', self.imu_callback, 10)
         self.cmd_vel_sub = self.create_subscription(
-            Twist, '/cmd_vel_input', self.cmd_vel_callback, 10)
+            Twist, '/cmd_vel', self.cmd_vel_callback, 10)
         
         # Publishers
         self.emergency_pub = self.create_publisher(Bool, '/safety/emergency_stop', 10)

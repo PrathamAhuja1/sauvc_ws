@@ -36,8 +36,9 @@ install(PROGRAMS
   
   # Core gate detection system
   scripts/gate_detector_node.py
-  scripts/gate_mission_bt.py
-  
+  scripts/BT.py
+  scripts/gate_navigator_node.py
+
   # Support systems
   scripts/simple_thruster_mapper.py
   scripts/safety_monitor_node.py

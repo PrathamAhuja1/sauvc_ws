@@ -487,7 +487,7 @@ class GateMissionBehavioralTree(Node):
         status_msg = String()
         
         # Get current behavior feedback
-        visitor = py_trees.visitors.DebugVisitor()
+        visitor = py_trees.visitors.SnapshotVisitor()
         self.root.visit(visitor)
         
         current_behavior = None
