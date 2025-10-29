@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Complete Autonomous Mission Launch File
-Runs ALL components needed for autonomous operation
+Gate Detection Mission Launch File
+Launches only the necessary components for gate detection task
 """
 
 import os
@@ -10,7 +10,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
+
 
 def generate_launch_description():
     auv_slam_share = get_package_share_directory('auv_slam')
@@ -18,39 +18,32 @@ def generate_launch_description():
     # Config paths
     thruster_params = os.path.join(auv_slam_share, 'config', 'thruster_params.yaml')
     gate_params = os.path.join(auv_slam_share, 'config', 'gate_params.yaml')
-    flare_params = os.path.join(auv_slam_share, 'config', 'flare_params.yaml')
-    navig_params= os.path.join(auv_slam_share, 'config', 'navigation_params.yaml')
+    safety_params = os.path.join(auv_slam_share, 'config', 'safety_params.yaml')
     
-    # 1. Simulation (Gazebo + RViz)
+    # ================================================
+    # 1. SIMULATION (Gazebo + RViz)
+    # ================================================
     display_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(auv_slam_share, 'launch', 'display.launch.py')
         ),
         launch_arguments={'use_sim_time': 'True'}.items()
     )
-
-# Gazebo-ROS Bridge
-#    bridge = Node(
-#        package='ros_gz_bridge',
-#        executable='parameter_bridge',
-#        arguments=[
-#            '--ros-args',
-#            '-p', f'config_file:={os.path.join(auv_slam_share, "config", "gz_bridge.yaml")}'
-#        ],
-#        output='screen',
-#        parameters=[{'use_sim_time': True}]
-#    )
-
-    # 2. Fixed Thruster Mapper
+    
+    # ================================================
+    # 2. THRUSTER MAPPER (Control Interface)
+    # ================================================
     thruster_mapper = Node(
         package='auv_slam',
         executable='simple_thruster_mapper.py',
-        name='fixed_thruster_mapper',
+        name='thruster_mapper',
         output='screen',
         parameters=[thruster_params]
     )
     
-    # 3. Gate Detector
+    # ================================================
+    # 3. GATE DETECTOR (Computer Vision)
+    # ================================================
     gate_detector = Node(
         package='auv_slam',
         executable='gate_detector_node.py',
@@ -58,68 +51,43 @@ def generate_launch_description():
         output='screen',
         parameters=[gate_params]
     )
-    gate_navigator = TimerAction(
-        period=3.0,  # Wait 3 seconds for detection to initialize
-        actions=[
-            Node(
-                package='auv_slam',
-                executable='_gate_navigator_node.py',
-                name='_gate_navigator_node',
-                output='screen',
-                parameters=[navig_params]
-            )
-        ]
-    )
     
-    # 4. Flare Detector
-    flare_detector = Node(
+    # ================================================
+    # 4. BEHAVIORAL TREE MISSION PLANNER
+    # ================================================
+    mission_planner = Node(
         package='auv_slam',
-        executable='flare_detection.py',
-        name='flare_detector_node',
-        output='screen',
-        parameters=[flare_params]
-    )
-    
-    # 5. FIXED Autonomous Mission Controller (BT.py replacement)
-    mission_controller = Node(
-        package='auv_slam',
-        executable='BT.py',
-        name='autonomous_mission_controller',
+        executable='gate_mission_bt.py',
+        name='gate_mission_bt',
         output='screen'
     )
     
-    # 6. Safety Monitor
+    # ================================================
+    # 5. SAFETY MONITOR
+    # ================================================
     safety_monitor = Node(
         package='auv_slam',
         executable='safety_monitor_node.py',
         name='safety_monitor',
         output='screen',
-        parameters=[{
-            'max_depth': -3.5,
-            'min_depth': 0.2,
-            'max_roll': 0.785,
-            'max_pitch': 0.785,
-            'watchdog_timeout': 5.0,
-            'max_mission_time': 900.0
-        }]
+        parameters=[safety_params]
     )
     
-    # 7. Diagnostic Node
-    #diagnostic = Node(
-    #   package='auv_slam',
-    #    executable='diagnostic_node.py',
-    #    name='diagnostic_node',
-    #    output='screen'
-    #)
+    # ================================================
+    # 6. DIAGNOSTIC NODE (Optional - for debugging)
+    # ================================================
+    diagnostic = Node(
+        package='auv_slam',
+        executable='diagnostic_node.py',
+        name='diagnostic_node',
+        output='screen'
+    )
     
     return LaunchDescription([
         display_launch,
-    #    bridge,
         thruster_mapper,
         gate_detector,
-#        gate_navigator,
-        flare_detector,
-        mission_controller,
+        mission_planner,
         safety_monitor,
-    #    diagnostic,
+        diagnostic,
     ])
