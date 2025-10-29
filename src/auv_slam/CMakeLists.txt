@@ -36,7 +36,7 @@ install(PROGRAMS
   
   # Core gate detection system
   scripts/gate_detector_node.py
-  scripts/BT.py
+#  scripts/BT.py
   scripts/gate_navigator_node.py
 
   # Support systems

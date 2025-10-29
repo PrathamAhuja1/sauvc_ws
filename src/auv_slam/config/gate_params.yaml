@@ -1,27 +1,25 @@
-# Used by: gate_detector_node.py
+# Used by: gate_detector_node.py and professional_gate_navigator.py
 
 gate_detector_node:
   ros__parameters:
     # Detection thresholds
-    min_contour_area: 500
-    aspect_ratio_min: 2.0
-    aspect_ratio_max: 12.0
-    stripe_detection_enabled: true
+    min_contour_area: 150  # <-- WAS 500. This is the MAIN FIX for distant detection.
+    aspect_ratio_min: 1.5      # Relaxed from 2.0
+    aspect_ratio_max: 15.0     # Relaxed from 12.0
     publish_debug: true
-    detection_confidence_threshold: 0.7
-    temporal_smoothing_window: 5
+    detection_confidence_threshold: 0.5 # Relaxed from 0.7
     
     # HSV color ranges (optimized for underwater Gazebo simulation)
-    # Red stripes (port side)
+    # These are now nested, the detector node is updated to read them.
     red_hsv:
-      lower1: [0, 100, 100]
-      upper1: [10, 255, 255]
-      lower2: [160, 100, 100]
+      lower1: [0, 70, 70]
+      upper1: [15, 255, 255]
+      lower2: [155, 70, 70]
       upper2: [180, 255, 255]
     
     # Green stripes (starboard side)
     green_hsv:
-      lower: [45, 80, 80]
+      lower: [45, 70, 70]
       upper: [85, 255, 255]
     
     # Orange flare (danger)
@@ -29,7 +27,7 @@ gate_detector_node:
       lower: [10, 100, 100]
       upper: [25, 255, 255]
 
-professional_gate_navigator:
+gate_navigator_node:
   ros__parameters:
     # Target depth (gate is at -1.5m in simulation)
     target_depth: -1.5
