@@ -67,7 +67,6 @@ class ProfessionalGateNavigator(Node):
         self.declare_parameter('min_detection_confidence', 0.6)
 
         # --- Get all parameters ---
-        # Note: We get parameters individually, not as a group
         self.target_depth = self.get_parameter('target_depth').value
         self.depth_tolerance = self.get_parameter('depth_tolerance').value
         self.depth_gain = self.get_parameter('depth_correction_gain').value
@@ -174,10 +173,11 @@ class ProfessionalGateNavigator(Node):
         self.get_logger().info(f"--- Changing state to {new_state.name} ---")
 
     def get_time_in_state(self):
-        return self.get_clock().now().seconds_nanoseconds()[0] - self.state_start_time
+        # Return time in state in seconds (float)
+        return (self.get_clock().now().seconds_nanoseconds()[0] - self.state_start_time) / 1e9
 
     def is_gate_lost(self):
-        time_since_seen = self.get_clock().now().seconds_nanoseconds()[0] - self.last_detection_time
+        time_since_seen = (self.get_clock().now().seconds_nanoseconds()[0] - self.last_detection_time) / 1e9
         return not self.gate_detected and time_since_seen > self.gate_lost_timeout
         
     def get_adaptive_yaw_cmd(self):

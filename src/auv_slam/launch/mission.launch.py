@@ -15,7 +15,9 @@ def generate_launch_description():
     
     # This single param file is used by both nodes
     param_file = os.path.join(auv_slam_share, 'config', 'gate_params.yaml')
-    thruster_file = os.path.join(auv_slam_share, 'config', 'thruster_params.yaml')
+    
+    # Config for thrusters
+    thruster_params = os.path.join(auv_slam_share, 'config', 'thruster_params.yaml')
     
     # 1. Simulation (Gazebo + RViz)
     display_launch = IncludeLaunchDescription(
@@ -43,7 +45,7 @@ def generate_launch_description():
         executable='simple_thruster_mapper.py',
         name='fixed_thruster_mapper',
         output='screen',
-        parameters=[thruster_file]
+        parameters=[thruster_params]
     )
     
     # 3. Gate Detector (Updated)
@@ -59,9 +61,9 @@ def generate_launch_description():
     gate_navigator = Node(
         package='auv_slam',
         executable='gate_navigator_node.py',
-        name='gate_navigator_node',
+        name='gate_navigator_node', # This MUST match the name in the YAML
         output='screen',
-        parameters=[param_file] 
+        parameters=[param_file] # Loads params from professional_gate_navigator section
     )
     
     # 5. Safety Monitor
@@ -85,7 +87,7 @@ def generate_launch_description():
         bridge,
         thruster_mapper,
         gate_detector,
-        gate_navigator, 
+        gate_navigator,  # <-- This is the new professional navigator
         safety_monitor,
         diagnostic,
     ])

@@ -107,10 +107,6 @@ class EnhancedGateDetector(Node):
             self.debug_pub = self.create_publisher(Image, '/gate/debug_image', 10)
             self.debug_mask_pub = self.create_publisher(Image, '/gate/debug_mask', 10)
     
-    # --- All other functions (cam_info_callback, image_callback, preprocess_image, etc.)
-    # --- are identical to the previous version. You can paste them here.
-    # --- For completeness, the full code is below:
-
     def cam_info_callback(self, msg: CameraInfo):
         if self.camera_matrix is None:
             self.camera_matrix = np.array(msg.k).reshape((3, 3))
@@ -384,7 +380,7 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node
+        node.destroy_node()
         rclpy.shutdown()
 
 if __name__ == '__main__':

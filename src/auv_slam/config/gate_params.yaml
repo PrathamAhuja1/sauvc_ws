@@ -3,14 +3,14 @@
 gate_detector_node:
   ros__parameters:
     # Detection thresholds
-    min_contour_area: 150  # <-- WAS 500. This is the MAIN FIX for distant detection.
+    min_contour_area: 150      # <-- WAS 500. This is the MAIN FIX.
     aspect_ratio_min: 1.5      # Relaxed from 2.0
     aspect_ratio_max: 15.0     # Relaxed from 12.0
     publish_debug: true
     detection_confidence_threshold: 0.5 # Relaxed from 0.7
     
     # HSV color ranges (optimized for underwater Gazebo simulation)
-    # These are now nested, the detector node is updated to read them.
+    # The detector node is now updated to read these.
     red_hsv:
       lower1: [0, 70, 70]
       upper1: [15, 255, 255]
@@ -59,11 +59,6 @@ gate_navigator_node:
     yaw_gain_medium: 1.8   # Medium distance (4-6m)
     yaw_gain_near: 2.5     # Near gate (2.5-4m)
     yaw_gain_fine: 3.5     # Very close (<2.5m)
-    
-    # Flare avoidance parameters
-    flare_avoidance_gain: 1.5
-    flare_critical_distance: 3.0
-    emergency_avoidance_duration: 4.0
     
     # Safety and recovery
     gate_lost_timeout: 5.0
