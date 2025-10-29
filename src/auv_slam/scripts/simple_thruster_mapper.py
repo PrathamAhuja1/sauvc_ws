@@ -16,39 +16,37 @@ class FixedThrusterMapper(Node):
         super().__init__('fixed_thruster_mapper')
         
         # Parameters
-        self.declare_parameter('max_thrust', 300.0)
-        self.declare_parameter('thrust_scale', 50.0)
-        self.declare_parameter('vertical_boost', 3.0)
+        self.declare_parameter('max_thrust', 150.0)
+        self.declare_parameter('thrust_scale', 10.0)
+        self.declare_parameter('vertical_boost', 1.5) 
         
         self.max_thrust = self.get_parameter('max_thrust').value
         self.thrust_scale = self.get_parameter('thrust_scale').value
         self.vertical_boost = self.get_parameter('vertical_boost').value
+
         
-        # CORRECTED Thruster Allocation Matrix
-        # Based on BlueROV2 Heavy vectored configuration
+        # For a VECTORED thruster configuration:
+        # - All 4 horizontal thrusters contribute to BOTH surge AND yaw
+        # - Diagonal thrust vectors must be properly decomposed
+        
+
         # Format: [Surge, Sway, Heave, Roll, Pitch, Yaw]
-        # T1: Front-Left (45° angle)
-        # T2: Front-Right (45° angle)
-        # T3: Back-Left (45° angle)
-        # T4: Back-Right (45° angle)
-        # T5: Vertical-Left
-        # T6: Vertical-Right
-        
         self.TAM = np.array([
-            # Surge, Sway,  Heave, Roll,  Pitch, Yaw
-            [  0.707, -0.707, 0,     0,     0,    -1],  # T1: FL
-            [  0.707,  0.707, 0,     0,     0,     1],  # T2: FR
-            [ -0.707,  0.707, 0,     0,     0,    -1],  # T3: BL
-            [ -0.707, -0.707, 0,     0,     0,     1],  # T4: BR
-            [  0,      0,     1,     0.3,   0.2,   0],  # T5: VL
-            [  0,      0,     1,    -0.3,  -0.2,   0],  # T6: VR
+
+            [  0.707,  -0.707,   0,    0,    0,    -0.163],
+
+            [  0.707,   0.707,   0,    0,    0,     0.163],
+
+            [ -0.707,   0.707,   0,    0,    0,    -0.034],
+
+            [ -0.707,  -0.707,   0,    0,    0,     0.034],
+
+            [  0,       0,       1,    0,    0.109,  0],
+            [  0,       0,       1,    0,   -0.109,  0],
         ], dtype=np.float64)
         
         # Pseudo-inverse for allocation
         self.TAM_pinv = np.linalg.pinv(self.TAM)
-        
-        # Command tracking
-        self.last_cmd_time = self.get_clock().now()
         
         # Subscriber
         self.twist_sub = self.create_subscription(
@@ -64,29 +62,22 @@ class FixedThrusterMapper(Node):
             )
             self.thruster_pubs.append(pub)
         
-        # Watchdog timer to detect if commands stop
-        self.watchdog_timer = self.create_timer(0.5, self.watchdog_check)
-        
-        self.get_logger().info('='*70)
         self.get_logger().info('Fixed Thruster Mapper initialized')
         self.get_logger().info(f'Max thrust: {self.max_thrust}')
         self.get_logger().info(f'Thrust scale: {self.thrust_scale}')
-        self.get_logger().info(f'Vertical boost: {self.vertical_boost}')
-        self.get_logger().info('='*70)
     
     def twist_callback(self, msg: Twist):
         """Convert Twist to thruster commands"""
         
-        self.last_cmd_time = self.get_clock().now()
-        
         # Build wrench vector from Twist
+        # Apply scaling to convert velocities to forces
         wrench = np.array([
             msg.linear.x * self.thrust_scale,      # Surge
             msg.linear.y * self.thrust_scale,      # Sway
-            msg.linear.z * self.thrust_scale * self.vertical_boost,  # Heave
-            0.0,                                    # Roll
-            0.0,                                    # Pitch
-            msg.angular.z * self.thrust_scale * 0.5,  # Yaw
+            msg.linear.z * self.thrust_scale * self.vertical_boost,  # Heave (boosted)
+            0.0,                                    # Roll (not used)
+            0.0,                                    # Pitch (not used)
+            msg.angular.z * self.thrust_scale*0.1,     # Yaw
         ])
         
         # Allocate to thrusters
@@ -97,28 +88,17 @@ class FixedThrusterMapper(Node):
         
         # Publish to each thruster
         for i, (pub, thrust) in enumerate(zip(self.thruster_pubs, final_thrusts)):
-            thrust_msg = Float64()
-            thrust_msg.data = float(thrust)
-            pub.publish(thrust_msg)
+            msg = Float64()
+            msg.data = float(thrust)
+            pub.publish(msg)
         
-        # Log significant commands
-        if np.any(np.abs(final_thrusts) > 5.0):
+        # Log for debugging
+        if np.any(np.abs(final_thrusts) > 1.0):
             self.get_logger().info(
-                f'CMD: [{msg.linear.x:.2f}, {msg.linear.y:.2f}, {msg.linear.z:.2f}] '
-                f'→ T: [{final_thrusts[0]:.0f}, {final_thrusts[1]:.0f}, '
-                f'{final_thrusts[2]:.0f}, {final_thrusts[3]:.0f}, '
-                f'{final_thrusts[4]:.0f}, {final_thrusts[5]:.0f}]',
-                throttle_duration_sec=0.5
-            )
-    
-    def watchdog_check(self):
-        """Check if commands are being received"""
-        time_since_cmd = (self.get_clock().now() - self.last_cmd_time).nanoseconds / 1e9
-        
-        if time_since_cmd > 2.0:
-            self.get_logger().warn(
-                f'⚠️  No commands received for {time_since_cmd:.1f}s',
-                throttle_duration_sec=5.0
+                f'Thrusters: T1={final_thrusts[0]:.1f} T2={final_thrusts[1]:.1f} '
+                f'T3={final_thrusts[2]:.1f} T4={final_thrusts[3]:.1f} '
+                f'T5={final_thrusts[4]:.1f} T6={final_thrusts[5]:.1f}',
+                throttle_duration_sec=1.0
             )
 
 

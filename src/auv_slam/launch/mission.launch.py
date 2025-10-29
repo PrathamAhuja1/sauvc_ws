@@ -105,12 +105,12 @@ def generate_launch_description():
     )
     
     # 7. Diagnostic Node
-    #diagnostic = Node(
-    #   package='auv_slam',
-    #    executable='diagnostic_node.py',
-    #    name='diagnostic_node',
-    #    output='screen'
-    #)
+    diagnostic = Node(
+       package='auv_slam',
+        executable='diagnostic_node.py',
+        name='diagnostic_node',
+        output='screen'
+    )
     
     return LaunchDescription([
         display_launch,
@@ -118,8 +118,7 @@ def generate_launch_description():
         thruster_mapper,
         gate_detector,
         gate_navigator,
-    #    flare_detector,
         mission_controller,
         safety_monitor,
-    #    diagnostic,
+        diagnostic,
     ])
