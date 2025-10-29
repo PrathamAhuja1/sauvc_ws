@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Behavioral Tree Mission Planner for Gate Detection Task
-Uses py_trees library for clean BT implementation
-Coordinates with gate_detector_node.py and implements navigation logic
+FIXED Behavioral Tree Mission Planner for Gate Detection Task
 """
 
 import rclpy
@@ -13,17 +11,12 @@ from std_msgs.msg import Bool, Float32, String
 from geometry_msgs.msg import Point
 
 import py_trees
-from py_trees.composites import Sequence, Selector, Parallel
-from py_trees.decorators import Retry, Timeout
+from py_trees.composites import Sequence, Selector
 from py_trees import common, blackboard
 import time
 import math
 import numpy as np
 
-
-# ============================================
-# BEHAVIORAL TREE BEHAVIORS (Leaf Nodes)
-# ============================================
 
 class SubmergeToDepth(py_trees.behaviour.Behaviour):
     """Submerge AUV to target depth for gate navigation"""
@@ -45,16 +38,17 @@ class SubmergeToDepth(py_trees.behaviour.Behaviour):
         
         depth_error = self.target_depth - current_depth
         
-        # Check if target depth reached
         if abs(depth_error) < self.tolerance:
             self.feedback_message = f"Target depth {self.target_depth:.2f}m reached"
+            # STOP movement when complete
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.SUCCESS
         
-        # Depth control command
         cmd = Twist()
-        cmd.linear.z = depth_error * 1.5  # Proportional control
+        cmd.linear.z = depth_error * 1.5
         cmd.linear.z = np.clip(cmd.linear.z, -0.5, 0.5)
-        cmd.linear.x = 0.2  # Gentle forward motion while submerging
+        cmd.linear.x = 0.2
         
         cmd_vel_pub.publish(cmd)
         
@@ -87,18 +81,20 @@ class SearchForGate(py_trees.behaviour.Behaviour):
         cmd_vel_pub = self.bb.get('cmd_vel_pub')
         current_depth = self.bb.get('current_depth')
         
-        # Check if gate found with sufficient confidence
         if gate_detected and confidence >= 0.6:
             self.feedback_message = f"Gate detected! Confidence: {confidence:.2f}"
+            # STOP when gate found
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.SUCCESS
         
-        # Check timeout
         elapsed = time.time() - self.start_time
         if elapsed > self.max_time:
             self.feedback_message = "Search timeout - gate not found"
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.FAILURE
         
-        # Search pattern: rotate + forward
         cmd = Twist()
         cmd.linear.z = self.get_depth_control(current_depth)
         cmd.linear.x = self.search_speed
@@ -121,9 +117,9 @@ class AlignWithGate(py_trees.behaviour.Behaviour):
     
     def __init__(self, name, alignment_threshold=0.15, approach_distance=2.0):
         super().__init__(name)
-        self.alignment_threshold = alignment_threshold  # ~8.5 degrees
+        self.alignment_threshold = alignment_threshold
         self.approach_distance = approach_distance
-        self.yaw_gain = 3.5  # Aggressive for quick alignment
+        self.yaw_gain = 3.5
         
         self.bb = py_trees.blackboard.Client(name=self.__class__.__name__)
         self.bb.register_key(key='gate_detected', access=py_trees.common.Access.READ)
@@ -143,26 +139,25 @@ class AlignWithGate(py_trees.behaviour.Behaviour):
         current_depth = self.bb.get('current_depth')
         cmd_vel_pub = self.bb.get('cmd_vel_pub')
         
-        # Check if gate still visible
         if not gate_detected or confidence < 0.6:
             self.feedback_message = "Gate lost - cannot align"
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.FAILURE
         
-        # Check if aligned and close enough to pass
         if abs(alignment_error) < self.alignment_threshold and gate_distance < self.approach_distance:
             self.feedback_message = f"Aligned! Error: {math.degrees(alignment_error):.1f}°"
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.SUCCESS
         
-        # Alignment control
         cmd = Twist()
         cmd.linear.z = self.get_depth_control(current_depth)
-        cmd.linear.x = 0.35  # Moderate approach speed
+        cmd.linear.x = 0.35
         
-        # Yaw correction
         cmd.angular.z = -alignment_error * self.yaw_gain
         cmd.angular.z = np.clip(cmd.angular.z, -0.7, 0.7)
         
-        # Flare avoidance if needed
         flare_detected = self.bb.get('flare_detected')
         if flare_detected and gate_distance > 3.0:
             flare_direction = self.bb.get('flare_avoidance_direction')
@@ -206,17 +201,16 @@ class PassThroughGate(py_trees.behaviour.Behaviour):
         
         elapsed = time.time() - self.start_time
         
-        # Check if passed through
         if elapsed > self.passing_duration:
             self.feedback_message = "Successfully passed through gate!"
+            cmd = Twist()
+            cmd_vel_pub.publish(cmd)
             return py_trees.common.Status.SUCCESS
         
-        # Full speed ahead with depth hold
         cmd = Twist()
         cmd.linear.z = self.get_depth_control(current_depth)
-        cmd.linear.x = self.passing_speed  # MAXIMUM SPEED
+        cmd.linear.x = self.passing_speed
         
-        # Minimal yaw correction if gate still visible
         if gate_detected and alignment_error is not None:
             cmd.angular.z = -alignment_error * 0.8
             cmd.angular.z = np.clip(cmd.angular.z, -0.3, 0.3)
@@ -234,91 +228,11 @@ class PassThroughGate(py_trees.behaviour.Behaviour):
         return np.clip(depth_error * 1.5, -0.6, 0.6)
 
 
-class EmergencyFlareAvoidance(py_trees.behaviour.Behaviour):
-    """Emergency avoidance when orange flare is critically close"""
-    
-    def __init__(self, name, avoidance_duration=4.0):
-        super().__init__(name)
-        self.avoidance_duration = avoidance_duration
-        self.start_time = None
-        
-        self.bb = py_trees.blackboard.Client(name=self.__class__.__name__)
-        self.bb.register_key(key='flare_detected', access=py_trees.common.Access.READ)
-        self.bb.register_key(key='flare_warning_level', access=py_trees.common.Access.READ)
-        self.bb.register_key(key='flare_avoidance_direction', access=py_trees.common.Access.READ)
-        self.bb.register_key(key='current_depth', access=py_trees.common.Access.READ)
-        self.bb.register_key(key='cmd_vel_pub', access=py_trees.common.Access.READ)
-        
-    def initialise(self):
-        self.start_time = time.time()
-        
-    def update(self):
-        flare_detected = self.bb.get('flare_detected')
-        warning_level = self.bb.get('flare_warning_level')
-        avoidance_direction = self.bb.get('flare_avoidance_direction')
-        cmd_vel_pub = self.bb.get('cmd_vel_pub')
-        current_depth = self.bb.get('current_depth')
-        
-        elapsed = time.time() - self.start_time
-        
-        # Check if avoidance complete
-        if not flare_detected or elapsed > self.avoidance_duration:
-            self.feedback_message = "Flare avoidance complete"
-            return py_trees.common.Status.SUCCESS
-        
-        # Emergency maneuver: Strong lateral motion
-        cmd = Twist()
-        cmd.linear.z = self.get_depth_control(current_depth)
-        cmd.linear.y = avoidance_direction * 1.5  # Strong lateral
-        cmd.linear.x = 0.15  # Slow forward
-        cmd.angular.z = 0.0  # No rotation
-        
-        cmd_vel_pub.publish(cmd)
-        
-        direction_text = "LEFT" if avoidance_direction < 0 else "RIGHT"
-        self.feedback_message = f"EMERGENCY AVOIDANCE: Moving {direction_text}"
-        return py_trees.common.Status.RUNNING
-    
-    def get_depth_control(self, current_depth, target_depth=-1.5):
-        if current_depth is None:
-            return 0.0
-        depth_error = target_depth - current_depth
-        return np.clip(depth_error * 1.5, -0.6, 0.6)
-
-
-# ============================================
-# CONDITION CHECKS
-# ============================================
-
-class CheckFlareEmergency(py_trees.behaviour.Behaviour):
-    """Check if emergency flare avoidance is needed"""
-    
-    def __init__(self, name):
-        super().__init__(name)
-        self.bb = py_trees.blackboard.Client(name=self.__class__.__name__)
-        self.bb.register_key(key='flare_detected', access=py_trees.common.Access.READ)
-        self.bb.register_key(key='flare_warning_level', access=py_trees.common.Access.READ)
-        
-    def update(self):
-        flare_detected = self.bb.get('flare_detected')
-        warning_level = self.bb.get('flare_warning_level')
-        
-        if flare_detected and "CRITICAL" in str(warning_level):
-            self.feedback_message = "CRITICAL flare detected!"
-            return py_trees.common.Status.SUCCESS
-        
-        return py_trees.common.Status.FAILURE
-
-
-# ============================================
-# ROS 2 NODE WITH BEHAVIORAL TREE
-# ============================================
-
 class GateMissionBehavioralTree(Node):
     """ROS 2 Node that runs behavioral tree for gate detection mission"""
     
     def __init__(self):
-        super().__init__('gate_mission_bt')
+        super().__init__('autonomous_mission_controller')
         
         # Blackboard setup
         self.blackboard = py_trees.blackboard.Client(name="GateMission")
@@ -382,6 +296,7 @@ class GateMissionBehavioralTree(Node):
         self.status_timer = self.create_timer(1.0, self.publish_status)
         
         self.mission_start_time = time.time()
+        self.mission_complete = False
         
         self.get_logger().info('='*70)
         self.get_logger().info('🌳 Gate Mission Behavioral Tree Started')
@@ -390,7 +305,6 @@ class GateMissionBehavioralTree(Node):
     def create_behavior_tree(self):
         """Create the behavioral tree structure"""
         
-        # Main mission sequence
         gate_mission = Sequence(
             name="GateMission",
             memory=False,
@@ -402,26 +316,7 @@ class GateMissionBehavioralTree(Node):
             ]
         )
         
-        # Emergency handling - higher priority
-        emergency_handling = Selector(
-            name="EmergencyHandling",
-            memory=False,
-            children=[
-                Sequence(
-                    name="HandleFlareEmergency",
-                    memory=False,
-                    children=[
-                        CheckFlareEmergency(name="CheckFlareEmergency"),
-                        EmergencyFlareAvoidance(name="EmergencyFlareAvoidance")
-                    ]
-                ),
-                gate_mission
-            ]
-        )
-        
-        return emergency_handling
-    
-    # ===== CALLBACKS =====
+        return gate_mission
     
     def odom_callback(self, msg: Odometry):
         self.blackboard.set('current_depth', msg.pose.pose.position.z)
@@ -451,13 +346,13 @@ class GateMissionBehavioralTree(Node):
     def flare_warning_callback(self, msg: String):
         self.blackboard.set('flare_warning_level', msg.data)
     
-    # ===== TREE EXECUTION =====
-    
     def tick_tree(self):
         """Tick the behavioral tree (10 Hz)"""
+        if self.mission_complete:
+            return
+            
         self.root.tick_once()
         
-        # Check if mission complete
         if self.root.status == py_trees.common.Status.SUCCESS:
             elapsed = time.time() - self.mission_start_time
             self.get_logger().info('='*70)
@@ -469,8 +364,7 @@ class GateMissionBehavioralTree(Node):
             cmd = Twist()
             self.cmd_vel_pub.publish(cmd)
             
-            # Stop ticking
-            self.tick_timer.cancel()
+            self.mission_complete = True
         
         elif self.root.status == py_trees.common.Status.FAILURE:
             self.get_logger().error('❌ MISSION FAILED!')
@@ -479,36 +373,34 @@ class GateMissionBehavioralTree(Node):
             cmd = Twist()
             self.cmd_vel_pub.publish(cmd)
             
-            # Stop ticking
-            self.tick_timer.cancel()
+            self.mission_complete = True
     
     def publish_status(self):
         """Publish mission status (1 Hz)"""
+        if self.mission_complete:
+            return
+            
         status_msg = String()
         
-        # Get current behavior feedback
-        visitor = py_trees.visitors.SnapshotVisitor()
-        self.root.visit(visitor)
-        
+        # Find currently running behavior - FIXED VERSION
         current_behavior = None
-        for behaviour in visitor.visited:
-            if behaviour.status == py_trees.common.Status.RUNNING:
-                current_behavior = behaviour
-                break
+        for child in self.root.iterate():
+            # Check if this is a Behaviour (not Composite) and it's RUNNING
+            if isinstance(child, py_trees.behaviour.Behaviour):
+                if child.status == py_trees.common.Status.RUNNING:
+                    current_behavior = child
+                    break
         
         if current_behavior:
             status_msg.data = f"{current_behavior.name}: {current_behavior.feedback_message}"
-        else:
-            status_msg.data = f"Status: {self.root.status.name}"
-        
-        self.mission_status_pub.publish(status_msg)
-        
-        # Log to console
-        if current_behavior:
             self.get_logger().info(
                 f"🌳 {current_behavior.name}: {current_behavior.feedback_message}",
                 throttle_duration_sec=2.0
             )
+        else:
+            status_msg.data = f"Status: {self.root.status.name}"
+        
+        self.mission_status_pub.publish(status_msg)
 
 
 def main(args=None):
